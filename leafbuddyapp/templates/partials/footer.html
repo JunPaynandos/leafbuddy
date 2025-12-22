@@ -1,0 +1,30 @@
+{% load static %}
+<footer class="bg-emerald-700 text-white py-12 px-6">
+  <div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
+    <div>
+      <h3 class="text-xl font-bold mb-4">LeafBuddy</h3>
+      <p class="text-sm text-green-100">
+        Empowering farmers with AI to detect and prevent crop diseases early.
+      </p>
+    </div>
+    <div>
+      <h4 class="text-lg font-semibold mb-3">Quick Links</h4>
+      <ul class="space-y-2 text-green-100">
+        <li><a href="{% url 'home' %}" class="hover:underline">Home</a></li>
+        <!-- <li><a href="#" class="hover:underline">Features</a></li> -->
+        <li><a href="{% url 'about' %}" class="hover:underline">About</a></li>
+        <li>
+          <a href="{% url 'contact' %}" class="hover:underline">Contact</a>
+        </li>
+      </ul>
+    </div>
+    <div>
+      <h4 class="text-lg font-semibold mb-3">Contact</h4>
+      <p class="text-sm text-green-100">Email: leafbuddy8@gmail.com</p>
+      <p class="text-sm text-green-100">Phone: +63 995 384 0596</p>
+    </div>
+  </div>
+  <div class="mt-12 text-center text-sm text-green-200">
+    &copy; {{ year }} LeafBuddy. All rights reserved.
+  </div>
+</footer>

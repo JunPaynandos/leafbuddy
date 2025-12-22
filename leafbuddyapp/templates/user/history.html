@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+  {% load static %}
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Analysis History</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+    <script
+      src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"
+      defer
+    ></script>
+    <link
+      rel="icon"
+      href="https://img.icons8.com/ios-filled/50/23d58c/leaf.png"
+      type="image/png"
+    />
+  </head>
+  <body class="bg-white">
+    {% load tz %}
+    <nav
+      class="py-4 px-8 bg-white fixed w-full z-50"
+      x-data="{ mobileMenu: false }"
+    >
+      <div class="container mx-auto flex items-center justify-between">
+        <a href="{% url 'home' %}" class="flex items-center space-x-3">
+          <img
+            src="https://img.icons8.com/ios-filled/50/23d58c/leaf.png"
+            class="w-10 h-10"
+          />
+          <span class="text-2xl font-bold text-green-400">LeafBuddy</span>
+        </a>
+
+        <!-- Desktop Menu -->
+        <ul
+          class="hidden ml-[-7.5rem] md:flex space-x-8 font-medium text-green-500 items-center"
+        >
+          <li>
+            <a
+              href="{% url 'home' %}"
+              class="{% if current_page == 'home' %}text-green-500 font-bold underline{% else %}hover:text-green-700{% endif %}"
+              >Home</a
+            >
+          </li>
+          <li class="relative group">
+            <span
+              class="cursor-pointer text-green-500 {% if current_page == 'features' %}font-bold{% endif %}"
+              >Features</span
+            >
+            <ul
+              class="absolute left-0 mt-2 w-40 bg-white border border-gray-200 rounded-md shadow-md opacity-0 group-hover:opacity-100 invisible group-hover:visible transition-all duration-200 z-50"
+            >
+              <li>
+                <a
+                  href="{% url 'scan' %}"
+                  class="block px-4 py-2 text-gray-700 hover:bg-green-50"
+                  >Scan</a
+                >
+              </li>
+              <li>
+                <a
+                  href="{% url 'library' %}"
+                  class="block px-4 py-2 text-gray-700 hover:bg-green-50"
+                  >Library</a
+                >
+              </li>
+            </ul>
+          </li>
+          <li>
+            <a
+              href="{% url 'about' %}"
+              class="{% if current_page == 'about' %}text-green-500 font-bold underline{% else %}hover:text-green-700{% endif %}"
+              >About</a
+            >
+          </li>
+          <li>
+            <a
+              href="{% url 'contact' %}"
+              class="{% if current_page == 'contact' %}text-green-500 font-bold underline{% else %}hover:text-green-700{% endif %}"
+              >Contact</a
+            >
+          </li>
+        </ul>
+
+        <!-- Profile + Hamburger -->
+        <div class="flex items-center space-x-4">
+          <!-- Profile Dropdown -->
+          {% if request.session.user_email %}
+          <div class="relative" x-data="{ open: false }">
+            <button @click="open = !open" class="focus:outline-none">
+              {% if request.session.profile_image %}
+              <img
+                src="{{ request.session.profile_image }}"
+                class="w-10 h-10 rounded-full object-cover"
+              />
+              {% else %}
+              <div
+                class="w-10 h-10 flex items-center justify-center rounded-full bg-green-500 text-white font-bold"
+              >
+                {{ request.session.initials }}
+              </div>
+              {% endif %}
+            </button>
+
+            <!-- Profile Dropdown -->
+            <div
+              x-show="open"
+              @click.away="open = false"
+              x-transition
+              class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg border z-50"
+            >
+              <a
+                href="{% url 'settings' %}"
+                class="block px-4 py-2 text-sm text-gray-700 hover:bg-green-50"
+                >Settings</a
+              >
+              <a
+                href="{% url 'history' %}"
+                class="block px-4 py-2 text-sm text-gray-700 hover:bg-green-50"
+                >Analysis History</a
+              >
+              <a
+                href="{% url 'logout' %}"
+                class="block px-4 py-2 text-sm text-red-600 hover:bg-red-100"
+                >Logout</a
+              >
+            </div>
+          </div>
+          {% else %}
+          <a
+            href="{% url 'login' %}"
+            class="bg-green-400 hover:bg-green-500 text-white font-semibold px-5 py-2 rounded-md hidden md:block"
+            >Sign In</a
+          >
+          {% endif %}
+
+          <!-- Mobile Hamburger -->
+          <div class="relative md:hidden">
+            <button
+              @click="mobileMenu = !mobileMenu"
+              class="text-green-500 focus:outline-none rounded"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-8 w-8"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
+              </svg>
+            </button>
+
+            <!-- Mobile Dropdown -->
+            <div
+              x-show="mobileMenu"
+              @click.away="mobileMenu = false"
+              x-transition
+              class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg border z-50 flex flex-col"
+            >
+              <a
+                href="{% url 'home' %}"
+                class="block text-sm px-4 py-2 text-black hover:bg-green-50"
+                >Home</a
+              >
+              <a
+                href="{% url 'scan' %}"
+                class="block text-sm px-4 py-2 text-black hover:bg-green-50"
+                >Scan</a
+              >
+              <a
+                href="{% url 'library' %}"
+                class="block text-sm px-4 py-2 text-black hover:bg-green-50"
+                >Library</a
+              >
+              <a
+                href="{% url 'about' %}"
+                class="block text-sm px-4 py-2 text-black hover:bg-green-50"
+                >About</a
+              >
+              <a
+                href="{% url 'contact' %}"
+                class="block text-sm px-4 py-2 text-black hover:bg-green-50"
+                >Contact</a
+              >
+              {% if request.session.user_email %}
+              <a
+                href="{% url 'logout' %}"
+                class="block text-sm px-4 py-2 text-red-500 hover:bg-red-100"
+                >Logout</a
+              >
+              {% else %}
+              <a
+                href="{% url 'login' %}"
+                class="block text-sm px-4 py-2 text-black hover:bg-green-50"
+                >Sign In</a
+              >
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container mx-auto py-24">
+      <h1 class="text-4xl font-bold text-center mb-10 mt-12 text-green-400">
+        Your Analysis History
+      </h1>
+
+      {% if analysis_history %}
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mt-12 rounded-xl m-8">
+        {% for history in analysis_history %}
+        <div
+          class="bg-white rounded-xl shadow-lg hover:shadow-2xl transition duration-300 relative flex flex-col"
+          x-data="{ open: false, deleteOpen: false }"
+        >
+          <!-- Delete Button -->
+          <button
+            @click="deleteOpen = true"
+            class="absolute top-4 right-4 z-10 bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition text-sm"
+          >
+            Delete
+          </button>
+
+          <!-- Image -->
+          <img
+            src="{{ history.image_url }}"
+            alt="Scanned Image"
+            class="w-full h-52 sm:h-56 object-cover rounded-t-xl"
+          />
+
+          <!-- Card Content -->
+          <div class="p-5 flex flex-col flex-grow">
+            <h2 class="text-lg font-semibold text-green-700 mb-1">
+              {{ history.crop.name }} – {{ history.predicted_class }}
+            </h2>
+
+            <p class="text-sm text-gray-700 mb-2">
+              <strong>Confidence:</strong>
+              {% if history.confidence %}
+                {{ history.confidence|floatformat:2 }}%
+              {% endif %}
+            </p>
+
+            <p class="text-sm text-gray-600 mb-4 relative overflow-hidden max-h-16">
+              {{ history.description }}
+              <span class="absolute bottom-0 left-0 w-full h-6 bg-gradient-to-t from-white to-transparent"></span>
+            </p>
+
+            <!-- VIEW MORE BUTTON -->
+            <button
+              @click="open = true"
+              class="mt-auto w-full bg-green-400 hover:bg-green-500 text-white font-semibold py-2 rounded-md transition"
+            >
+              View More
+            </button>
+          </div>
+
+          <!-- MODAL -->
+          <div
+            x-show="open"
+            x-transition
+            class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 px-4"
+          >
+            <div
+              @click.away="open = false"
+              class="bg-white w-full max-w-2xl max-h-[90vh] overflow-y-auto"
+            >
+              <!-- Modal Header -->
+              <div class="flex justify-between items-center p-4 border-b">
+                <h3 class="text-xl font-bold text-green-600">
+                  {{ history.crop.name }} – {{ history.predicted_class }}
+                </h3>
+                <button
+                  @click="open = false"
+                  class="text-gray-500 hover:text-red-500 text-2xl"
+                >
+                  &times;
+                </button>
+              </div>
+
+              <!-- Modal Body -->
+              <div class="p-5 space-y-4 text-sm sm:text-base text-justify">
+                <img
+                  src="{{ history.image_url }}"
+                  class="w-full h-80 object-cover rounded-lg"
+                />
+
+                <p>
+                  <strong>Confidence:</strong>
+                  {% if history.confidence %}
+                    {{ history.confidence|floatformat:2 }}%
+                  {% endif %}
+                </p>
+
+                <br /><strong>Description:</strong><p class="indent-6 text-justify">{{ history.description|linebreaksbr }}</p>
+                <br /><strong>Symptoms:</strong><p class="indent-6 text-justify">{{ history.symptoms|linebreaksbr }}</p>
+                <br /><strong>Treatment:</strong><p class="indent-6 text-justify">{{ history.treatment|linebreaksbr }}</p>
+                <br /><strong>Prevention:</strong><p class="indent-6 text-justify">{{ history.prevention|linebreaksbr }}</p>
+
+                <p class="text-gray-500 text-sm">
+                  <strong>Analyzed on:</strong>
+                  {{ history.created_at|localtime|date:"F j, Y, g:i a" }}
+                </p>
+              </div>
+
+              <!-- Modal Footer -->
+              <div class="p-4 border-t text-right">
+                <button
+                  @click="open = false"
+                  class="bg-gray-200 hover:bg-gray-300 px-4 py-2 rounded"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Delete Confirmation Modal -->
+          <div
+            x-show="deleteOpen"
+            x-transition
+            class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 px-4"
+          >
+            <div
+              @click.away="deleteOpen = false"
+              class="bg-white rounded-xl w-full max-w-sm p-6 shadow-lg"
+            >
+              <h3 class="text-lg font-bold text-red-600 mb-4">Confirm Deletion</h3>
+              <p class="text-gray-700 mb-6">
+                Are you sure you want to delete this record? This action cannot be undone.
+              </p>
+              <div class="flex justify-end space-x-3">
+                <button
+                  @click="deleteOpen = false"
+                  class="bg-gray-200 hover:bg-gray-300 px-4 py-2 rounded"
+                >
+                  Cancel
+                </button>
+                <form method="POST" action="{% url 'delete_history' history.id %}">
+                  {% csrf_token %}
+                  <button
+                    type="submit"
+                    class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded"
+                  >
+                    Delete
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="flex flex-col items-center justify-center mt-12">
+        <div class="mb-6 h-[200px] flex items-center justify-center">
+          <lottie-player
+            src="{% static 'images/Empty Box.json' %}"
+            background="transparent"
+            speed="1"
+            style="width: 12rem; height: 12rem; margin: 0 auto"
+            loop
+            autoplay
+          ></lottie-player>
+        </div>
+        <p class="text-center text-lg text-gray-500">
+          You don't have any analysis history yet.
+        </p>
+      </div>
+      {% endif %}
+    </div>
+
+    {% include 'partials/footer.html' %}
+  </body>
+</html>

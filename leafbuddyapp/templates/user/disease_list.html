@@ -1,0 +1,100 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>{{ crop_name }} Diseases - LeafBuddy</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="icon"
+      href="https://img.icons8.com/ios-filled/50/23d58c/leaf.png"
+      type="image/png"
+    />
+  </head>
+  <body class="font-sans">
+    {% include 'partials/navbar.html' %}
+
+    <section class="py-16 px-6 max-w-4xl mx-auto">
+      <a
+        href="{% url 'library' %}"
+        class="inline-flex items-center text-green-600 hover:text-green-800 font-medium mb-4 transition"
+      >
+        <!-- left arrow icon -->
+        <svg
+          class="w-5 h-5 mr-2"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M15 19l-7-7 7-7"
+          ></path>
+        </svg>
+        Back to Library
+      </a>
+
+      <div class="text-center max-w-2xl mx-auto mb-10">
+        <h1 class="text-4xl font-bold text-green-600 mb-4">
+          {{ crop_name }} Diseases
+        </h1>
+
+        <!-- Search Bar -->
+        <input
+          id="diseaseSearch"
+          type="text"
+          placeholder="Search diseases..."
+          class="w-full p-3 border rounded-lg shadow focus:outline-none focus:ring-2 focus:ring-green-400"
+        />
+      </div>
+
+      <ul id="diseaseList" class="grid sm:grid-cols-2 gap-4">
+        {% for disease in diseases %}
+        <li class="disease-item" data-name="{{ disease.name|lower }}">
+          <a
+            href="{% url 'disease_detail' crop_name|lower disease.name|lower %}"
+            class="flex items-center gap-4 p-5 bg-white border border-gray-200 shadow-sm rounded-lg hover:shadow-md hover:scale-[1.02] transition-all duration-200"
+          >
+            <!-- Icon -->
+            <div class="flex-shrink-0 bg-green-100 p-2 rounded-full">
+              <!-- <img
+                src="https://img.icons8.com/ios/50/228B22/plant-disease.png"
+                alt="disease icon"
+                class="w-6 h-6"
+              /> -->
+              <img
+                src="{% static disease.image %}"
+                alt="{{ disease.name }} image"
+                class="w-12 h-12 object-cover rounded-full"
+              />
+            </div>
+
+            <!-- Disease Name -->
+            <div class="text-gray-800 font-medium text-lg capitalize">
+              {{ disease.name }}
+            </div>
+          </a>
+        </li>
+        {% endfor %}
+      </ul>
+    </section>
+
+    {% include 'partials/footer.html' %}
+
+    <script>
+      const diseaseSearch = document.getElementById("diseaseSearch");
+      const diseaseItems = document.querySelectorAll(".disease-item");
+
+      diseaseSearch.addEventListener("input", () => {
+        const query = diseaseSearch.value.toLowerCase();
+        diseaseItems.forEach((item) => {
+          const name = item.dataset.name;
+          item.style.display = name.includes(query) ? "block" : "none";
+        });
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+  {% load static %}
+  <head>
+    <meta charset="UTF-8" />
+    <title>About Us | LeafBuddy</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"
+      defer
+    ></script>
+    <link
+      rel="icon"
+      href="https://img.icons8.com/ios-filled/50/23d58c/leaf.png"
+      type="image/png"
+    />
+    <style>
+      @keyframes float {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-10px);
+        }
+      }
+      .float {
+        animation: float 3s ease-in-out infinite;
+      }
+    </style>
+  </head>
+  <body class="font-sans">
+    <nav class="py-4 px-8 bg-white w-full z-50" x-data="{ mobileMenu: false }">
+      <div class="container mx-auto flex items-center justify-between">
+        <!-- Logo -->
+        <a href="{% url 'home' %}" class="flex items-center space-x-3">
+          <img
+            src="https://img.icons8.com/ios-filled/50/23d58c/leaf.png"
+            class="w-10 h-10"
+          />
+          <span class="text-2xl font-bold text-green-400">LeafBuddy</span>
+        </a>
+
+        <!-- Desktop Menu -->
+        <ul
+          class="hidden ml-[-7.5rem] md:flex space-x-8 font-medium text-green-500 items-center"
+        >
+          <li>
+            <a
+              href="{% url 'home' %}"
+              class="{% if current_page == 'home' %}text-green-500 font-bold underline{% else %}hover:text-green-700{% endif %}"
+              >Home</a
+            >
+          </li>
+          <li class="relative group">
+            <span
+              class="cursor-pointer text-green-500 {% if current_page == 'features' %}font-bold{% endif %}"
+              >Features</span
+            >
+            <ul
+              class="absolute left-0 mt-2 w-40 bg-white border border-gray-200 rounded-md shadow-md opacity-0 group-hover:opacity-100 invisible group-hover:visible transition-all duration-200 z-50"
+            >
+              <li>
+                <a
+                  href="{% url 'scan' %}"
+                  class="block px-4 py-2 text-gray-700 hover:bg-green-50"
+                  >Scan</a
+                >
+              </li>
+              <li>
+                <a
+                  href="{% url 'library' %}"
+                  class="block px-4 py-2 text-gray-700 hover:bg-green-50"
+                  >Library</a
+                >
+              </li>
+            </ul>
+          </li>
+          <li>
+            <a
+              href="{% url 'about' %}"
+              class="{% if current_page == 'about' %}text-green-500 font-bold underline{% else %}hover:text-green-700{% endif %}"
+              >About</a
+            >
+          </li>
+          <li>
+            <a
+              href="{% url 'contact' %}"
+              class="{% if current_page == 'contact' %}text-green-500 font-bold underline{% else %}hover:text-green-700{% endif %}"
+              >Contact</a
+            >
+          </li>
+        </ul>
+
+        <!-- Profile + Hamburger -->
+        <div class="flex items-center space-x-4">
+          <!-- Profile Dropdown -->
+          {% if request.session.user_email %}
+          <div class="relative" x-data="{ open: false }">
+            <button @click="open = !open" class="focus:outline-none">
+              {% if request.session.profile_image %}
+              <img
+                src="{{ request.session.profile_image }}"
+                class="w-10 h-10 rounded-full object-cover"
+              />
+              {% else %}
+              <div
+                class="w-10 h-10 flex items-center justify-center rounded-full bg-green-500 text-white font-bold"
+              >
+                {{ request.session.initials }}
+              </div>
+              {% endif %}
+            </button>
+
+            <!-- Profile Dropdown -->
+            <div
+              x-show="open"
+              @click.away="open = false"
+              x-transition
+              class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg border z-50"
+            >
+              <a
+                href="{% url 'settings' %}"
+                class="block px-4 py-2 text-sm text-gray-700 hover:bg-green-50"
+                >Settings</a
+              >
+              <a
+                href="{% url 'history' %}"
+                class="block px-4 py-2 text-sm text-gray-700 hover:bg-green-50"
+                >Analysis History</a
+              >
+              <a
+                href="{% url 'logout' %}"
+                class="block px-4 py-2 text-sm text-red-600 hover:bg-red-100"
+                >Logout</a
+              >
+            </div>
+          </div>
+          {% else %}
+          <a
+            href="{% url 'login' %}"
+            class="bg-green-400 hover:bg-green-500 text-white font-semibold px-5 py-2 rounded-md hidden md:block"
+            >Sign In</a
+          >
+          {% endif %}
+
+          <!-- Mobile Hamburger -->
+          <div class="relative md:hidden">
+            <button
+              @click="mobileMenu = !mobileMenu"
+              class="text-green-500 focus:outline-none rounded"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-8 w-8"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
+              </svg>
+            </button>
+
+            <!-- Mobile Dropdown -->
+            <div
+              x-show="mobileMenu"
+              @click.away="mobileMenu = false"
+              x-transition
+              class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg border z-50 flex flex-col"
+            >
+              <a
+                href="{% url 'home' %}"
+                class="block text-sm px-4 py-2 text-black hover:bg-green-50"
+                >Home</a
+              >
+              <a
+                href="{% url 'scan' %}"
+                class="block text-sm px-4 py-2 text-black hover:bg-green-50"
+                >Scan</a
+              >
+              <a
+                href="{% url 'library' %}"
+                class="block text-sm px-4 py-2 text-black hover:bg-green-50"
+                >Library</a
+              >
+              <a
+                href="{% url 'about' %}"
+                class="block text-sm px-4 py-2 text-black hover:bg-green-50"
+                >About</a
+              >
+              <a
+                href="{% url 'contact' %}"
+                class="block text-sm px-4 py-2 text-black hover:bg-green-50"
+                >Contact</a
+              >
+              {% if request.session.user_email %}
+              <a
+                href="{% url 'logout' %}"
+                class="block text-sm px-4 py-2 text-red-500 hover:bg-red-100"
+                >Logout</a
+              >
+              {% else %}
+              <a
+                href="{% url 'login' %}"
+                class="block text-sm px-4 py-2 text-black hover:bg-green-50"
+                >Sign In</a
+              >
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Page Content -->
+    <div class="pt-24">
+      <!-- About Section -->
+      <section class="py-24 px-6">
+        <div class="max-w-6xl mx-auto text-center">
+          <h1 class="text-5xl font-extrabold text-green-400 mb-8">
+            About LeafBuddy
+          </h1>
+          <p class="text-xl text-gray-600 leading-relaxed max-w-3xl mx-auto">
+            LeafBuddy is an AI-powered tool built to help farmers identify plant
+            diseases early, improve crop health, and increase productivity. We
+            believe in empowering agriculture through technology—making disease
+            detection accessible, accurate, and user-friendly for everyone,
+            especially small-scale farmers.
+          </p>
+        </div>
+      </section>
+
+      <!-- Mission & Vision -->
+      <section class="py-20 px-6">
+        <div class="max-w-6xl mx-auto grid md:grid-cols-2 gap-12">
+          <div class="bg-white p-10 rounded-xl">
+            <h2 class="text-3xl font-bold text-green-400 mb-4">Our Mission</h2>
+            <p class="text-gray-600 text-lg leading-relaxed">
+              To revolutionize agriculture by providing AI-driven solutions that
+              help farmers detect leaf diseases quickly, accurately, and
+              affordably—reducing crop loss and promoting sustainable farming
+              practices.
+            </p>
+          </div>
+          <div class="bg-white p-10 rounded-xl">
+            <h2 class="text-3xl font-bold text-green-400 mb-4">Our Vision</h2>
+            <p class="text-gray-600 text-lg leading-relaxed">
+              We envision a world where every farmer, regardless of location or
+              scale, can access cutting-edge plant health diagnostics and make
+              data-driven decisions to boost yield and protect their crops.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Team Section (Centered Single Card) -->
+      <section class="py-24 px-6">
+        <div class="max-w-6xl mx-auto text-center">
+          <h2 class="text-4xl font-extrabold text-green-400 mb-12">
+            Meet the Team
+          </h2>
+          <p class="text-gray-600 text-lg max-w-3xl mx-auto mb-12">
+            We’re a passionate team of developers, agronomists, and designers
+            dedicated to building accessible and innovative tools for modern
+            agriculture.
+          </p>
+
+          <!-- Centered Team Card -->
+          <div class="flex justify-center">
+            <div class="bg-white p-6 rounded-xl text-center shadow-lg w-72">
+              <!-- Profile Picture -->
+              <img
+                src="{% static 'images/icecream.png' %}"
+                alt="Ice Scream"
+                class="w-24 h-24 mx-auto rounded-full mb-4 float object-cover"
+              />
+
+              <!-- Name & Role -->
+              <h3 class="text-lg font-semibold text-green-700">Ice Scream</h3>
+              <p class="text-sm text-gray-600 mb-4">Developer</p>
+
+              <!-- Social Links -->
+              <div class="flex justify-center space-x-4 mt-2">
+                <a
+                  href="https://github.com/"
+                  target="_blank"
+                  class="text-gray-500 hover:text-green-500 transition"
+                  aria-label="GitHub"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="currentColor"
+                    viewBox="0 0 24 24"
+                    class="w-6 h-6"
+                  >
+                    <path
+                      d="M12 0C5.37 0 0 5.37 0 12a12.01 12.01 0 0 0 8.21 11.43c.6.11.82-.26.82-.58v-2.02c-3.34.73-4.04-1.61-4.04-1.61-.55-1.38-1.35-1.75-1.35-1.75-1.1-.75.08-.74.08-.74 1.22.09 1.87 1.25 1.87 1.25 1.08 1.85 2.83 1.31 3.52 1 .11-.78.42-1.31.76-1.61-2.67-.3-5.48-1.34-5.48-5.95 0-1.31.47-2.38 1.24-3.22-.12-.3-.54-1.51.12-3.15 0 0 1.01-.32 3.3 1.23a11.5 11.5 0 0 1 6 0c2.29-1.55 3.3-1.23 3.3-1.23.66 1.64.24 2.85.12 3.15.77.84 1.24 1.91 1.24 3.22 0 4.62-2.82 5.65-5.5 5.95.43.37.82 1.1.82 2.22v3.29c0 .32.22.69.83.57A12.01 12.01 0 0 0 24 12C24 5.37 18.63 0 12 0z"
+                    />
+                  </svg>
+                </a>
+
+                <a
+                  href="https://linkedin.com/"
+                  target="_blank"
+                  class="text-gray-500 hover:text-green-500 transition"
+                  aria-label="LinkedIn"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="currentColor"
+                    viewBox="0 0 24 24"
+                    class="w-6 h-6"
+                  >
+                    <path
+                      d="M19 0h-14C2.239 0 0 2.239 0 5v14c0 2.761 2.239 5 5 5h14c2.761 0 5-2.239 5-5V5c0-2.761-2.239-5-5-5zm-11.5 20h-3V9h3v11zM4.75 7.5c-.967 0-1.75-.783-1.75-1.75S3.783 4 4.75 4 6.5 4.783 6.5 5.75 5.717 7.5 4.75 7.5zM20 20h-3v-5.604c0-1.337-.026-3.059-1.862-3.059-1.863 0-2.148 1.454-2.148 2.957V20h-3V9h2.885v1.507h.041c.403-.764 1.389-1.566 2.858-1.566 3.054 0 3.626 2.01 3.626 4.624V20z"
+                    />
+                  </svg>
+                </a>
+
+                <a
+                  href="https://twitter.com/"
+                  target="_blank"
+                  class="text-gray-500 hover:text-green-500 transition"
+                  aria-label="Twitter"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="currentColor"
+                    viewBox="0 0 24 24"
+                    class="w-6 h-6"
+                  >
+                    <path
+                      d="M23.954 4.569c-.885.392-1.83.656-2.825.775 1.014-.609 1.794-1.574 2.163-2.724-.951.564-2.005.974-3.127 1.195-.896-.955-2.178-1.55-3.594-1.55-2.72 0-4.924 2.204-4.924 4.924 0 .39.045.765.127 1.124C7.691 8.094 4.066 6.13 1.64 3.161c-.427.729-.667 1.577-.667 2.475 0 1.71.87 3.213 2.188 4.096-.807-.026-1.566-.248-2.229-.616v.061c0 2.386 1.693 4.374 3.946 4.827-.413.111-.849.171-1.296.171-.317 0-.626-.03-.928-.086.627 1.956 2.444 3.379 4.6 3.419-1.68 1.318-3.809 2.104-6.102 2.104-.396 0-.787-.023-1.175-.069C2.29 21.29 5.008 22 7.94 22c9.532 0 14.745-7.903 14.745-14.745 0-.225-.005-.447-.015-.668A10.57 10.57 0 0 0 24 4.59z"
+                    />
+                  </svg>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    {% include 'partials/footer.html' %}
+  </body>
+</html>

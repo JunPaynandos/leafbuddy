@@ -1,0 +1,89 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Library - LeafBuddy</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="icon"
+      href="https://img.icons8.com/ios-filled/50/23d58c/leaf.png"
+      type="image/png"
+    />
+  </head>
+  <body class="font-sans">
+    {% include 'partials/navbar.html' %}
+
+    <section class="py-24 px-6">
+      <div class="max-w-6xl mx-auto text-center">
+        <h1 class="text-5xl font-extrabold text-green-400 mb-6">
+          Disease Library
+        </h1>
+        <p class="text-lg text-gray-600 mb-6">
+          Explore a curated library of plant diseases, symptoms, and treatments.
+        </p>
+
+        <!-- Search Bar -->
+        <div class="mb-10">
+          <input
+            id="cropSearch"
+            type="text"
+            placeholder="  Search crops..."
+            class="w-full md:w-1/2 p-3 border rounded-lg shadow focus:outline-none focus:ring-2 focus:ring-green-400"
+          />
+        </div>
+
+        <!-- Crop Cards -->
+        <div
+          id="cropGrid"
+          class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8"
+        >
+          {% for crop in crops %}
+          <a
+            href="{% url 'crop_diseases' crop.name|lower %}"
+            class="crop-card"
+            data-name="{{ crop.name|lower }}"
+          >
+            <div
+              class="bg-white border border-gray-200 rounded-xl shadow-md p-6 text-left transform transition-all duration-200 hover:shadow-lg hover:scale-[1.02]"
+            >
+              <div
+                class="w-full h-40 flex justify-center items-center mb-4 rounded"
+              >
+                <img
+                  src="{% static crop.image %}"
+                  alt="General image of {{ crop.name }}"
+                  class="object-contain h-full w-auto"
+                />
+              </div>
+
+              <h3 class="text-xl font-bold text-green-600 mb-2">
+                {{ crop.name }} ({{ crop.scientific_name }})
+              </h3>
+
+              <!-- <p class="text-sm text-gray-500">
+                Scientific Name: {{ crop.scientific_name }}
+              </p> -->
+            </div>
+          </a>
+          {% endfor %}
+        </div>
+      </div>
+    </section>
+
+    <script>
+      const searchInput = document.getElementById("cropSearch");
+      const cropCards = document.querySelectorAll(".crop-card");
+
+      searchInput.addEventListener("input", () => {
+        const query = searchInput.value.toLowerCase();
+        cropCards.forEach((card) => {
+          const name = card.dataset.name;
+          card.style.display = name.includes(query) ? "block" : "none";
+        });
+      });
+    </script>
+
+    {% include 'partials/footer.html' %}
+  </body>
+</html>

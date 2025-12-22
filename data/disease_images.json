@@ -1,0 +1,62 @@
+{
+  "banana black sigatoka disease": [
+    "disease_images/crop_images/banana/Black Sigatoka Disease (2).jpg",
+    "disease_images/crop_images/banana/Black Sigatoka Disease (3).jpg",
+    "disease_images/crop_images/banana/Black Sigatoka Disease (4).jpg",
+    "disease_images/crop_images/banana/Black Sigatoka Disease (5).jpg",
+    "disease_images/crop_images/banana/Black Sigatoka Disease (6).jpg",
+    "disease_images/crop_images/banana/Black Sigatoka Disease (11).jpg"
+  ],
+  "banana bract mosaic virus disease": [
+    "disease_images/crop_images/banana/Bract Mosaic Virus Disease (2).jpg",
+    "disease_images/crop_images/banana/Bract Mosaic Virus Disease (3).jpg",
+    "disease_images/crop_images/banana/Bract Mosaic Virus Disease (4).jpg",
+    "disease_images/crop_images/banana/Bract Mosaic Virus Disease (5).jpg",
+    "disease_images/crop_images/banana/Bract Mosaic Virus Disease (6).jpg",
+    "disease_images/crop_images/banana/Bract Mosaic Virus Disease (7).jpg"
+  ],
+  "banana healthy leaf": [
+    "disease_images/crop_images/banana/Healthy Leaf (2).jpg",
+    "disease_images/crop_images/banana/Healthy Leaf (3).jpg",
+    "disease_images/crop_images/banana/Healthy Leaf (4).jpg",
+    "disease_images/crop_images/banana/Healthy Leaf (5).jpg",
+    "disease_images/crop_images/banana/Healthy Leaf (6).jpg",
+    "disease_images/crop_images/banana/Healthy Leaf (7).jpg"
+  ],
+  "banana insect pest disease": [
+    "disease_images/crop_images/banana/Insect Pest Disease (1).jpg",
+    "disease_images/crop_images/banana/Insect Pest Disease (2).jpg",
+    "disease_images/crop_images/banana/Insect Pest Disease (3).jpg",
+    "disease_images/crop_images/banana/Insect Pest Disease (5).jpg",
+    "disease_images/crop_images/banana/Insect Pest Disease (6).jpg",
+    "disease_images/crop_images/banana/Insect Pest Disease (7).jpg"
+  ],
+  "banana moko disease": [
+    "disease_images/crop_images/banana/Moko Disease (1).jpg",
+    "disease_images/crop_images/banana/Moko Disease (2).jpg",
+    "disease_images/crop_images/banana/Moko Disease (3).jpg",
+    "disease_images/crop_images/banana/Moko Disease (4).jpg",
+    "disease_images/crop_images/banana/Moko Disease (5).jpg",
+    "disease_images/crop_images/banana/Moko Disease (6).jpg"
+  ],
+  "banana panama disease": [
+    "disease_images/crop_images/banana/Panama Disease (1).jpg",
+    "disease_images/crop_images/banana/Panama Disease (2).jpg",
+    "disease_images/crop_images/banana/Panama Disease (3).jpg",
+    "disease_images/crop_images/banana/Panama Disease (4).jpg",
+    "disease_images/crop_images/banana/Panama Disease (6).jpg",
+    "disease_images/crop_images/banana/Panama Disease (7).jpg"
+  ],
+  "banana yellow sigatoka disease": [
+    "disease_images/crop_images/banana/Yellow Sigatoka Disease (1).jpg",
+    "disease_images/crop_images/banana/Yellow Sigatoka Disease (2).jpg",
+    "disease_images/crop_images/banana/Yellow Sigatoka Disease (3).jpg",
+    "disease_images/crop_images/banana/Yellow Sigatoka Disease (4).jpg",
+    "disease_images/crop_images/banana/Yellow Sigatoka Disease (5).jpg",
+    "disease_images/crop_images/banana/Yellow Sigatoka Disease (6).jpg"
+  ],
+  "tomato_anthracnose": [
+    "disease_images/crop_images/tomato/anthracnose_.jpg",
+    "disease_images/crop_images/tomato/early blight.jpg"
+  ]
+}

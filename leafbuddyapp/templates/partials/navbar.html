@@ -1,0 +1,193 @@
+<head>
+  <script
+    src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"
+    defer
+  ></script>
+</head>
+
+<nav class="py-4 px-8 bg-white w-full z-50" x-data="{ mobileMenu: false }">
+  <div class="container mx-auto flex items-center justify-between">
+    <!-- Logo -->
+    <a href="{% url 'home' %}" class="flex items-center space-x-3">
+      <img
+        src="https://img.icons8.com/ios-filled/50/23d58c/leaf.png"
+        class="w-10 h-10"
+      />
+      <span class="text-2xl font-bold text-green-400">LeafBuddy</span>
+    </a>
+
+    <!-- Desktop Menu -->
+    <ul
+      class="hidden ml-[-7.5rem] md:flex space-x-8 font-medium text-green-500 items-center"
+    >
+      <li>
+        <a
+          href="{% url 'home' %}"
+          class="{% if current_page == 'home' %}text-green-500 font-bold underline{% else %}hover:text-green-700{% endif %}"
+          >Home</a
+        >
+      </li>
+      <li class="relative group">
+        <span
+          class="cursor-pointer text-green-500 {% if current_page == 'features' %}font-bold{% endif %}"
+          >Features</span
+        >
+        <ul
+          class="absolute left-0 mt-2 w-40 bg-white border border-gray-200 rounded-md shadow-md opacity-0 group-hover:opacity-100 invisible group-hover:visible transition-all duration-200 z-50"
+        >
+          <li>
+            <a
+              href="{% url 'scan' %}"
+              class="block px-4 py-2 text-gray-700 hover:bg-green-50"
+              >Scan</a
+            >
+          </li>
+          <li>
+            <a
+              href="{% url 'library' %}"
+              class="block px-4 py-2 text-gray-700 hover:bg-green-50"
+              >Library</a
+            >
+          </li>
+        </ul>
+      </li>
+      <li>
+        <a
+          href="{% url 'about' %}"
+          class="{% if current_page == 'about' %}text-green-500 font-bold underline{% else %}hover:text-green-700{% endif %}"
+          >About</a
+        >
+      </li>
+      <li>
+        <a
+          href="{% url 'contact' %}"
+          class="{% if current_page == 'contact' %}text-green-500 font-bold underline{% else %}hover:text-green-700{% endif %}"
+          >Contact</a
+        >
+      </li>
+    </ul>
+
+    <!-- Profile + Hamburger -->
+    <div class="flex items-center space-x-4">
+      <!-- Profile Dropdown -->
+      {% if request.session.user_email %}
+      <div class="relative" x-data="{ open: false }">
+        <button @click="open = !open" class="focus:outline-none">
+          {% if request.session.profile_image %}
+          <img
+            src="{{ request.session.profile_image }}"
+            class="w-10 h-10 rounded-full object-cover"
+          />
+          {% else %}
+          <div
+            class="w-10 h-10 flex items-center justify-center rounded-full bg-green-500 text-white font-bold"
+          >
+            {{ request.session.initials }}
+          </div>
+          {% endif %}
+        </button>
+
+        <!-- Profile Dropdown -->
+        <div
+          x-show="open"
+          @click.away="open = false"
+          x-transition
+          class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg border z-50"
+        >
+          <a
+            href="{% url 'settings' %}"
+            class="block px-4 py-2 text-sm text-gray-700 hover:bg-green-50"
+            >Settings</a
+          >
+          <a
+            href="{% url 'history' %}"
+            class="block px-4 py-2 text-sm text-gray-700 hover:bg-green-50"
+            >Analysis History</a
+          >
+          <a
+            href="{% url 'logout' %}"
+            class="block px-4 py-2 text-sm text-red-600 hover:bg-red-100"
+            >Logout</a
+          >
+        </div>
+      </div>
+      {% else %}
+      <a
+        href="{% url 'login' %}"
+        class="bg-green-400 hover:bg-green-500 text-white font-semibold px-5 py-2 rounded-md hidden md:block"
+        >Sign In</a
+      >
+      {% endif %}
+
+      <!-- Mobile Hamburger -->
+      <div class="relative md:hidden">
+        <button
+          @click="mobileMenu = !mobileMenu"
+          class="text-green-500 focus:outline-none rounded"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-8 w-8"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M4 6h16M4 12h16M4 18h16"
+            />
+          </svg>
+        </button>
+
+        <!-- Mobile Dropdown -->
+        <div
+          x-show="mobileMenu"
+          @click.away="mobileMenu = false"
+          x-transition
+          class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg border z-50 flex flex-col"
+        >
+          <a
+            href="{% url 'home' %}"
+            class="block text-sm px-4 py-2 text-black hover:bg-green-50"
+            >Home</a
+          >
+          <a
+            href="{% url 'scan' %}"
+            class="block text-sm px-4 py-2 text-black hover:bg-green-50"
+            >Scan</a
+          >
+          <a
+            href="{% url 'library' %}"
+            class="block text-sm px-4 py-2 text-black hover:bg-green-50"
+            >Library</a
+          >
+          <a
+            href="{% url 'about' %}"
+            class="block text-sm px-4 py-2 text-black hover:bg-green-50"
+            >About</a
+          >
+          <a
+            href="{% url 'contact' %}"
+            class="block text-sm px-4 py-2 text-black hover:bg-green-50"
+            >Contact</a
+          >
+          {% if request.session.user_email %}
+          <a
+            href="{% url 'logout' %}"
+            class="block text-sm px-4 py-2 text-red-500 hover:bg-red-100"
+            >Logout</a
+          >
+          {% else %}
+          <a
+            href="{% url 'login' %}"
+            class="block text-sm px-4 py-2 text-black hover:bg-green-50"
+            >Sign In</a
+          >
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>

@@ -1,0 +1,128 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>{{ disease_name }} - LeafBuddy</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="icon"
+      href="https://img.icons8.com/ios-filled/50/23d58c/leaf.png"
+      type="image/png"
+    />
+    <style>
+      .text-justify {
+        text-indent: 40px;
+      }
+    </style>
+  </head>
+  <body class="font-sans w-m-screen">
+    {% include 'partials/navbar.html' %}
+
+    <section class="py-16 px-6 max-w-4xl mx-auto">
+      <img
+        src="{% static image_path %}"
+        alt="{{ disease_name }} image"
+        class="w-full max-w-md mx-auto mb-6 rounded shadow-md"
+      />
+
+      <a
+        href="#"
+        id="view-more-images"
+        class="text-gray-600 hover:underline mt-4 mb-8 block text-center text-sm"
+      >
+        (View more images)
+      </a>
+
+      <h1 class="text-4xl flex justify-center font-bold text-green-600 mb-8">
+        {{ disease_name }}
+      </h1>
+
+      <h2 class="text-2xl font-semibold text-green-500 mt-6 mb-2">
+        Description
+      </h2>
+      <p class="text-gray-700 mb-8 text-justify">{{ description }}</p>
+
+      {% if not is_healthy %}
+      <h2 class="text-2xl font-semibold text-green-500 mt-6 mb-2">Symptoms</h2>
+      <p class="text-gray-700 mb-8 text-justify">{{ symptoms }}</p>
+
+      <h2 class="text-2xl font-semibold text-green-500 mt-6 mb-2">Treatment</h2>
+      <p class="text-gray-700 mb-8 text-justify">{{ treatment }}</p>
+
+      <h2 class="text-2xl font-semibold text-green-500 mt-6 mb-2">
+        Prevention
+      </h2>
+      <p class="text-gray-700 mb-8 text-justify">{{ prevention }}</p>
+      {% endif %}
+
+      <a
+        href="{% url 'crop_diseases' crop_name|lower %}"
+        class="text-green-600 hover:underline"
+        >← Back to {{ crop_name }} list</a
+      >
+
+      <!-- Modal to show related images -->
+      <div
+        id="image-modal"
+        class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center hidden"
+        onclick="closeModal(event)"
+      >
+        <div class="bg-white p-6 rounded-lg shadow-lg max-w-lg w-full relative">
+          <h2 class="text-xl font-semibold text-center text-green-600 mb-4">
+            Related Images
+          </h2>
+          <div id="modal-images" class="grid grid-cols-3 gap-4">
+            <!-- Images will be loaded here -->
+          </div>
+          <button
+            id="close-modal"
+            class="mt-4 text-white bg-green-600 hover:bg-green-700 rounded-full py-2 px-4 mx-auto block"
+            onclick="closeModal(event)"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </section>
+
+    {% include 'partials/footer.html' %}
+
+    <script>
+      // Parse the related_images as JSON from Django context
+      const relatedImages = JSON.parse("{{ related_images|escapejs }}");
+
+      // Function to load related images into the modal
+      function loadImages() {
+        const modalImages = document.getElementById("modal-images");
+        modalImages.innerHTML = ""; // Clear previous images
+
+        relatedImages.forEach((imagePath) => {
+          const imgElement = document.createElement("img");
+          imgElement.src = "{% static '' %}" + imagePath; // Ensure static path is applied correctly
+          imgElement.alt = "Related Image";
+          imgElement.classList.add("w-full", "h-auto", "modal-image");
+
+          modalImages.appendChild(imgElement);
+        });
+
+        // Show the modal
+        document.getElementById("image-modal").style.display = "flex";
+      }
+
+      // Open the modal on link click
+      document.getElementById("view-more-images").onclick = function (event) {
+        event.preventDefault();
+        loadImages();
+      };
+
+      // Close the modal when clicking outside of the modal content
+      function closeModal(event) {
+        const modal = document.getElementById("image-modal");
+        if (event.target === modal || event.target.id === "close-modal") {
+          modal.style.display = "none"; // Hide the modal
+        }
+      }
+    </script>
+  </body>
+</html>

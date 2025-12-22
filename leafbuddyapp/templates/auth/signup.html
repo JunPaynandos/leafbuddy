@@ -1,0 +1,208 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Sign Up | LeafBuddy</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="icon"
+      href="https://img.icons8.com/ios-filled/50/23d58c/leaf.png"
+      type="image/png"
+    />
+    <style>
+      /* Custom styles for floating labels */
+      .input-container {
+        position: relative;
+        margin-bottom: 1.5rem;
+      }
+      .input-container input {
+        padding: 0.75rem 1rem; /* Ensure the input has consistent padding */
+        font-size: 1rem;
+        line-height: 1.5rem; /* Ensures vertical alignment */
+        border: 1px solid #ccc;
+        border-radius: 0.375rem;
+        width: 100%;
+        background-color: #fff;
+        box-sizing: border-box; /* Ensure padding doesn't affect width */
+      }
+      .input-container label {
+        position: absolute;
+        left: 1rem;
+        top: 0.75rem;
+        font-size: 1rem;
+        color: #6b7280;
+        background-color: #fff;
+        padding-left: 0.25rem;
+        padding-right: 0.25rem;
+        transition: all 0.2s ease-out;
+        pointer-events: none;
+      }
+      .input-container input:focus + label,
+      .input-container input:not(:placeholder-shown) + label {
+        top: -0.5rem;
+        font-size: 0.75rem;
+        color: #34d399; /* Tailwind green color */
+      }
+      /* Focus ring removal for smoother interaction */
+      .input-container input:focus {
+        outline: none;
+        border-color: #34d399;
+        box-shadow: 0 0 0 2px rgba(52, 211, 153, 0.3);
+      }
+      /* Style for button */
+      button {
+        height: 2.5rem; /* Ensure button height matches input height */
+      }
+      /* Styling the Google Sign-in button */
+      .google-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem; /* Spacing between icon and text */
+        padding: 0.75rem 1rem;
+        border-radius: 0.375rem;
+        background-color: white;
+        border: 1px solid #ccc;
+        color: #333;
+        transition: background-color 0.3s ease;
+      }
+      .google-btn:hover {
+        background-color: #f1f1f1;
+      }
+      .google-btn img {
+        width: 1.25rem; /* Adjust the size of the Google icon */
+        height: 1.25rem;
+      }
+    </style>
+  </head>
+  <body class="flex items-center justify-center min-h-screen">
+    <div class="absolute top-0 left-0 w-full">
+      {% include 'auth/nav.html' %}
+    </div>
+    <div class="p-8 w-full max-w-md">
+      <div class="flex flex-col items-center mb-6">
+        <br /><br /><br />
+        <h1 class="text-2xl font-bold text-green-400 mt-2">Create Account</h1>
+      </div>
+      <form method="POST">
+        {% csrf_token %}
+
+        <div class="input-container">
+          <input
+            type="text"
+            name="first_name"
+            id="first_name"
+            required
+            autocomplete="off"
+            class="focus:outline-none focus:ring-2 focus:ring-green-400"
+            placeholder=" "
+          />
+          <label for="first_name">First Name</label>
+          {% if errors.firstname %}
+          <p class="text-red-500 text-sm mt-1">{{ errors.firstname }}</p>
+          {% endif %}
+        </div>
+
+        <div class="input-container">
+          <input
+            type="text"
+            name="last_name"
+            id="last_name"
+            required
+            autocomplete="off"
+            class="focus:outline-none focus:ring-2 focus:ring-green-400"
+            placeholder=" "
+          />
+          <label for="last_name">Last Name</label>
+          {% if errors.lastname %}
+          <p class="text-red-500 text-sm mt-1">{{ errors.lastname }}</p>
+          {% endif %}
+        </div>
+
+        <div class="input-container">
+          <input
+            type="text"
+            name="username"
+            id="username"
+            required
+            autocomplete="off"
+            class="focus:outline-none focus:ring-2 focus:ring-green-400"
+            placeholder=" "
+          />
+          <label for="username">Username</label>
+          {% if errors.username %}
+          <p class="text-red-500 text-sm mt-1">{{ errors.username }}</p>
+          {% endif %}
+        </div>
+
+        <div class="input-container">
+          <input
+            type="email"
+            name="email"
+            id="email"
+            required
+            autocomplete="off"
+            class="focus:outline-none focus:ring-2 focus:ring-green-400"
+            placeholder=" "
+          />
+          <label for="email">Email</label>
+          {% if errors.email %}
+          <p class="text-red-500 text-sm mt-1">{{ errors.email }}</p>
+          {% endif %}
+        </div>
+
+        <div class="input-container">
+          <input
+            type="password"
+            name="password"
+            id="password"
+            required
+            class="focus:outline-none focus:ring-2 focus:ring-green-400"
+            placeholder=" "
+          />
+          <label for="password">Password</label>
+        </div>
+
+        <button
+          type="submit"
+          class="w-full bg-green-500 text-white font-semibold py-6 rounded hover:bg-green-600 transition duration-300 flex items-center justify-center"
+        >
+          Sign Up
+        </button>
+
+        <div class="flex items-center my-4">
+          <hr class="flex-grow border-gray-300" />
+          <span class="mx-2 text-gray-500 text-sm">OR</span>
+          <hr class="flex-grow border-gray-300" />
+        </div>
+
+        <!-- Google Sign-In Button with Colored Google Icon -->
+        <a href="{{ google_auth_url }}" class="google-btn">
+          <img src="{% static 'images/google.png' %}" alt="Google Icon" />
+          Sign in with Google
+        </a>
+      </form>
+      <p class="mt-4 text-center text-sm text-gray-600">
+        Already have an account?
+        <a
+          href="{% url 'login' %}"
+          class="text-green-600 font-medium hover:underline"
+          >Sign In</a
+        >
+      </p>
+    </div>
+
+    <script>
+      // Check if access_token exists in the URL fragment
+      if (window.location.hash.includes("access_token")) {
+        const params = new URLSearchParams(window.location.hash.slice(1));
+        const accessToken = params.get("access_token");
+        if (accessToken) {
+          // Redirect to backend callback with query string
+          window.location.href = `/auth/callback/?access_token=${accessToken}`;
+        }
+      }
+    </script>
+  </body>
+</html>

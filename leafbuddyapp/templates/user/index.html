@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en">
+  {% load static %}
+  <head>
+    <meta charset="UTF-8" />
+    <title>LeafBuddy</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"
+      defer
+    ></script>
+    <link
+      rel="icon"
+      href="https://img.icons8.com/ios-filled/50/23d58c/leaf.png"
+      type="image/png"
+    />
+    <style>
+      @keyframes float {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-10px);
+        }
+      }
+      .float {
+        animation: float 3s ease-in-out infinite;
+      }
+      body {
+        overflow-x: hidden;
+      }
+    </style>
+  </head>
+
+  <body class="font-sans" x-data="{ openMenu: false }">
+    <!-- Hero Section -->
+    <section class="relative min-h-screen overflow-hidden flex flex-col">
+      <nav
+        class="py-4 px-8 bg-white w-full z-50"
+        x-data="{ mobileMenu: false }"
+      >
+        <div class="container mx-auto flex items-center justify-between">
+          <!-- Logo -->
+          <a href="{% url 'home' %}" class="flex items-center space-x-3">
+            <img
+              src="https://img.icons8.com/ios-filled/50/23d58c/leaf.png"
+              class="w-10 h-10"
+            />
+            <span class="text-2xl font-bold text-green-400">LeafBuddy</span>
+          </a>
+
+          <!-- Desktop Menu -->
+          <ul
+            class="hidden ml-[-7.5rem] md:flex space-x-8 font-medium text-green-500 items-center"
+          >
+            <li>
+              <a
+                href="{% url 'home' %}"
+                class="{% if current_page == 'home' %}text-green-500 font-bold underline{% else %}hover:text-green-700{% endif %}"
+                >Home</a
+              >
+            </li>
+            <li class="relative group">
+              <span
+                class="cursor-pointer text-green-500 {% if current_page == 'features' %}font-bold{% endif %}"
+                >Features</span
+              >
+              <ul
+                class="absolute left-0 mt-2 w-40 bg-white border border-gray-200 rounded-md shadow-md opacity-0 group-hover:opacity-100 invisible group-hover:visible transition-all duration-200 z-50"
+              >
+                <li>
+                  <a
+                    href="{% url 'scan' %}"
+                    class="block px-4 py-2 text-gray-700 hover:bg-green-50"
+                    >Scan</a
+                  >
+                </li>
+                <li>
+                  <a
+                    href="{% url 'library' %}"
+                    class="block px-4 py-2 text-gray-700 hover:bg-green-50"
+                    >Library</a
+                  >
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a
+                href="{% url 'about' %}"
+                class="{% if current_page == 'about' %}text-green-500 font-bold underline{% else %}hover:text-green-700{% endif %}"
+                >About</a
+              >
+            </li>
+            <li>
+              <a
+                href="{% url 'contact' %}"
+                class="{% if current_page == 'contact' %}text-green-500 font-bold underline{% else %}hover:text-green-700{% endif %}"
+                >Contact</a
+              >
+            </li>
+          </ul>
+
+          <!-- Profile + Hamburger -->
+          <div class="flex items-center space-x-4">
+            <!-- Profile Dropdown -->
+            {% if request.session.user_email %}
+            <div class="relative" x-data="{ open: false }">
+              <button @click="open = !open" class="focus:outline-none">
+                {% if request.session.profile_image %}
+                <img
+                  src="{{ request.session.profile_image }}"
+                  class="w-10 h-10 rounded-full object-cover"
+                />
+                {% else %}
+                <div
+                  class="w-10 h-10 flex items-center justify-center rounded-full bg-green-500 text-white font-bold"
+                >
+                  {{ request.session.initials }}
+                </div>
+                {% endif %}
+              </button>
+
+              <!-- Profile Dropdown -->
+              <div
+                x-show="open"
+                @click.away="open = false"
+                x-transition
+                class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg border z-50"
+              >
+                <a
+                  href="{% url 'settings' %}"
+                  class="block px-4 py-2 text-sm text-gray-700 hover:bg-green-50"
+                  >Settings</a
+                >
+                <a
+                  href="{% url 'history' %}"
+                  class="block px-4 py-2 text-sm text-gray-700 hover:bg-green-50"
+                  >Analysis History</a
+                >
+                <a
+                  href="{% url 'logout' %}"
+                  class="block px-4 py-2 text-sm text-red-600 hover:bg-red-100"
+                  >Logout</a
+                >
+              </div>
+            </div>
+            {% else %}
+            <a
+              href="{% url 'login' %}"
+              class="bg-green-400 hover:bg-green-500 text-white font-semibold px-5 py-2 rounded-md hidden md:block"
+              >Sign In</a
+            >
+            {% endif %}
+
+            <!-- Mobile Hamburger -->
+            <div class="relative md:hidden">
+              <button
+                @click="mobileMenu = !mobileMenu"
+                class="text-green-500 focus:outline-none rounded"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-8 w-8"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M4 6h16M4 12h16M4 18h16"
+                  />
+                </svg>
+              </button>
+
+              <!-- Mobile Dropdown -->
+              <div
+                x-show="mobileMenu"
+                @click.away="mobileMenu = false"
+                x-transition
+                class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg border z-50 flex flex-col"
+              >
+                <a
+                  href="{% url 'home' %}"
+                  class="block text-sm px-4 py-2 text-black hover:bg-green-50"
+                  >Home</a
+                >
+                <a
+                  href="{% url 'scan' %}"
+                  class="block text-sm px-4 py-2 text-black hover:bg-green-50"
+                  >Scan</a
+                >
+                <a
+                  href="{% url 'library' %}"
+                  class="block text-sm px-4 py-2 text-black hover:bg-green-50"
+                  >Library</a
+                >
+                <a
+                  href="{% url 'about' %}"
+                  class="block text-sm px-4 py-2 text-black hover:bg-green-50"
+                  >About</a
+                >
+                <a
+                  href="{% url 'contact' %}"
+                  class="block text-sm px-4 py-2 text-black hover:bg-green-50"
+                  >Contact</a
+                >
+                {% if request.session.user_email %}
+                <a
+                  href="{% url 'logout' %}"
+                  class="block text-sm px-4 py-2 text-red-500 hover:bg-red-100"
+                  >Logout</a
+                >
+                {% else %}
+                <a
+                  href="{% url 'login' %}"
+                  class="block text-sm px-4 py-2 text-black hover:bg-green-50"
+                  >Sign In</a
+                >
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <!-- Mobile Menu -->
+      <div
+        x-show="openMenu"
+        class="md:hidden absolute top-16 left-0 w-full bg-white shadow-md border-t border-gray-200 flex flex-col space-y-4 py-4 px-6 z-50"
+        @click.away="openMenu = false"
+      >
+        <a
+          href="{% url 'home' %}"
+          class="text-green-600 font-medium hover:text-green-700"
+          >Home</a
+        >
+        <a
+          href="{% url 'scan' %}"
+          class="text-green-600 font-medium hover:text-green-700"
+          >Scan</a
+        >
+        <a
+          href="{% url 'library' %}"
+          class="text-green-600 font-medium hover:text-green-700"
+          >Library</a
+        >
+        <a
+          href="{% url 'about' %}"
+          class="text-green-600 font-medium hover:text-green-700"
+          >About</a
+        >
+        <a
+          href="{% url 'contact' %}"
+          class="text-green-600 font-medium hover:text-green-700"
+          >Contact</a
+        >
+        {% if request.session.user_email %}
+        <a
+          href="{% url 'logout' %}"
+          class="text-red-500 font-medium hover:text-red-700"
+          >Logout</a
+        >
+        {% else %}
+        <a
+          href="{% url 'login' %}"
+          class="bg-green-400 hover:bg-green-500 text-white font-semibold px-5 py-2 rounded-md text-center"
+        >
+          Sign In
+        </a>
+        {% endif %}
+      </div>
+
+      <!-- Hero Content -->
+      <div
+        class="flex-grow flex flex-col justify-center items-center text-center px-4 relative z-20"
+      >
+        <div class="max-w-[1080px] mx-auto mt-[-50px]">
+          <p
+            class="text-3xl sm:text-5xl font-bold text-green-400 mb-6 leading-tight"
+          >
+            Detect. Prevent. Protect.
+          </p>
+          <p
+            class="text-gray-600 font-semibold max-w-xl sm:max-w-2xl md:max-w-3xl mx-auto mb-8 px-4"
+          >
+            Helping farmers accurately detect and effectively control leaf
+            diseases in a wide variety of crops, LeafBuddy delivers fast and
+            easy-to-use tools designed to identify common issues early, minimize
+            damage, and improve overall crop health.
+          </p>
+          {% if request.session.user_email %}
+          <a
+            href="{% url 'scan' %}"
+            class="inline-block bg-green-500 hover:bg-green-600 text-white font-semibold py-3 px-6 rounded transition duration-300"
+          >
+            Start Scan
+          </a>
+          {% else %}
+          <a
+            href="{% url 'login' %}"
+            class="inline-block bg-green-500 hover:bg-green-600 text-white font-semibold py-3 px-6 rounded transition duration-300"
+          >
+            Start Detect
+          </a>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Decorative Images (unchanged, hidden only on small screens) -->
+      <div class="pointer-events-none absolute inset-0 z-0 hidden sm:block">
+        <!-- All your original decorative image code remains exactly the same -->
+        <!-- Left Center -->
+        <div
+          class="absolute"
+          style="top: 58%; left: -10rem; transform: translateY(-50%)"
+        >
+          <div class="float">
+            <img
+              src="{% static 'images/rice.png' %}"
+              style="
+                width: 30rem;
+                aspect-ratio: 1;
+                transform: rotate(5deg) scale(1.1);
+              "
+            />
+          </div>
+        </div>
+
+        <!-- Left Bottom -->
+        <div class="absolute" style="bottom: -6rem; left: -3rem">
+          <div class="float">
+            <img
+              src="{% static 'images/beans3.png' %}"
+              style="
+                width: 20rem;
+                aspect-ratio: 1;
+                transform: rotate(-2deg) scale(1.1);
+              "
+            />
+          </div>
+        </div>
+
+        <!-- Bottom Center 1 -->
+        <div
+          class="absolute"
+          style="bottom: -5rem; left: 28%; transform: translateX(-50%)"
+        >
+          <div class="float">
+            <img
+              src="{% static 'images/chili.png' %}"
+              style="width: 20rem; aspect-ratio: 1; transform: scale(1.1)"
+            />
+          </div>
+        </div>
+
+        <!-- Bottom Center 2 -->
+        <div
+          class="absolute"
+          style="bottom: -5rem; left: 70%; transform: translateX(-50%)"
+        >
+          <div class="float">
+            <img
+              src="{% static 'images/tomato.png' %}"
+              style="
+                width: 20rem;
+                aspect-ratio: 1;
+                transform: rotate(15deg) scale(1.1);
+              "
+            />
+          </div>
+        </div>
+
+        <!-- Bottom Right -->
+        <div
+          class="absolute"
+          style="bottom: -5rem; right: -10rem; transform: translateX(-20%)"
+        >
+          <div class="float">
+            <img
+              src="{% static 'images/corn2.png' %}"
+              style="
+                width: 25rem;
+                aspect-ratio: 1;
+                transform: rotate(-10deg) scale(1.1);
+              "
+            />
+          </div>
+        </div>
+
+        <!-- Right Center -->
+        <div
+          class="absolute"
+          style="top: 30%; right: -15rem; transform: translateX(-50%)"
+        >
+          <div class="float">
+            <img
+              src="{% static 'images/banana_leaf2.png' %}"
+              style="
+                width: 20rem;
+                aspect-ratio: 1;
+                transform: rotate(-5deg) scale(1.1);
+              "
+            />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section class="relative min-h-screen py-24 px-6 text-center z-10">
+      <h2 class="text-5xl font-extrabold text-green-400 mb-16">
+        How LeafBuddy Works
+      </h2>
+      <div
+        class="relative grid grid-cols-1 md:grid-cols-3 gap-12 max-w-7xl mx-auto"
+      >
+        <div
+          class="group bg-white p-8 rounded-3xl shadow-lg hover:shadow-2xl transition duration-300 text-center"
+        >
+          <div class="mb-6 h-[200px] flex items-center justify-center">
+            <img
+              src="{% static 'images/image_upload.gif' %}"
+              alt="Upload Icon"
+              class="w-[12rem] h-[12rem] group-hover:scale-110 transition-transform duration-300"
+            />
+          </div>
+          <h3 class="text-2xl font-bold text-green-400 mb-2">
+            Upload/Capture Leaf Image
+          </h3>
+          <p class="text-gray-600 leading-relaxed">
+            Snap or upload an image of the affected leaf directly from your
+            device.
+          </p>
+        </div>
+
+        <div
+          class="group bg-white p-8 rounded-3xl shadow-lg hover:shadow-2xl transition duration-300 text-center"
+        >
+          <div class="mb-6 h-[200px] flex items-center justify-center">
+            <lottie-player
+              src="{% static 'images/Leaf scanning.json' %}"
+              background="transparent"
+              speed="1"
+              style="width: 12rem; height: 12rem; margin: 0 auto"
+              loop
+              autoplay
+            ></lottie-player>
+          </div>
+          <h3 class="text-2xl font-bold text-green-400 mb-2">AI Detection</h3>
+          <p class="text-gray-600 leading-relaxed">
+            Our AI scans the leaf for symptoms and instantly identifies possible
+            diseases.
+          </p>
+        </div>
+
+        <div
+          class="group bg-white p-8 rounded-3xl shadow-lg hover:shadow-2xl transition duration-300 text-center"
+        >
+          <div class="mb-6 h-[200px] flex items-center justify-center">
+            <lottie-player
+              src="{% static 'images/Leaf Icon.json' %}"
+              background="transparent"
+              speed="1"
+              style="width: 12rem; height: 12rem; margin: 0 auto"
+              loop
+              autoplay
+            ></lottie-player>
+          </div>
+          <h3 class="text-2xl font-bold text-green-400 mb-2">
+            Get Treatment Advice
+          </h3>
+          <p class="text-gray-600 leading-relaxed">
+            Receive tailored recommendations to manage and treat the detected
+            issues.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Supported Crops Section -->
+    <section class="relative py-24 px-6 z-10">
+      <h2 class="text-5xl font-extrabold text-green-400 text-center mb-16">
+        Supported Crops
+      </h2>
+
+      <div class="relative max-w-6xl mx-auto">
+        <!-- Slider Container -->
+        <div
+          id="cropSlider"
+          class="flex overflow-x-auto scroll-smooth gap-6 md:gap-8 pb-4"
+          style="scrollbar-width: none; -ms-overflow-style: none"
+        >
+          <style>
+            #cropSlider::-webkit-scrollbar {
+              display: none;
+            }
+          </style>
+
+          <!-- Crop Cards -->
+          <div
+            class="min-w-[250px] bg-white rounded-2xl border border-gray-200 hover:shadow-md transition p-6 flex flex-col items-center text-center flex-shrink-0"
+          >
+            <img
+              src="{% static 'images/rice.png' %}"
+              alt="Rice"
+              class="h-28 mb-4 transition-transform duration-300 hover:scale-105"
+            />
+            <span class="text-lg font-semibold text-gray-800">Rice</span>
+          </div>
+
+          <div
+            class="min-w-[250px] bg-white rounded-2xl border border-gray-200 hover:shadow-md transition p-6 flex flex-col items-center text-center flex-shrink-0"
+          >
+            <img
+              src="{% static 'images/corn2.png' %}"
+              alt="Corn"
+              class="h-28 mb-4 transition-transform duration-300 hover:scale-105"
+            />
+            <span class="text-lg font-semibold text-gray-800">Corn</span>
+          </div>
+
+          <div
+            class="min-w-[250px] bg-white rounded-2xl border border-gray-200 hover:shadow-md transition p-6 flex flex-col items-center text-center flex-shrink-0"
+          >
+            <img
+              src="{% static 'images/chili.png' %}"
+              alt="Chili"
+              class="h-28 mb-4 transition-transform duration-300 hover:scale-105"
+            />
+            <span class="text-lg font-semibold text-gray-800">Chili</span>
+          </div>
+
+          <div
+            class="min-w-[250px] bg-white rounded-2xl border border-gray-200 hover:shadow-md transition p-6 flex flex-col items-center text-center flex-shrink-0"
+          >
+            <img
+              src="{% static 'images/beans2.png' %}"
+              alt="Beans"
+              class="h-28 mb-4 transition-transform duration-300 hover:scale-105"
+            />
+            <span class="text-lg font-semibold text-gray-800">Beans</span>
+          </div>
+
+          <div
+            class="min-w-[250px] bg-white rounded-2xl border border-gray-200 hover:shadow-md transition p-6 flex flex-col items-center text-center flex-shrink-0"
+          >
+            <img
+              src="{% static 'images/tomato.png' %}"
+              alt="Tomato"
+              class="h-28 mb-4 transition-transform duration-300 hover:scale-105"
+            />
+            <span class="text-lg font-semibold text-gray-800">Tomato</span>
+          </div>
+
+          <div
+            class="min-w-[250px] bg-white rounded-2xl border border-gray-200 hover:shadow-md transition p-6 flex flex-col items-center text-center flex-shrink-0"
+          >
+            <img
+              src="{% static 'images/banana_leaf2.png' %}"
+              alt="Banana"
+              class="h-28 mb-4 transition-transform duration-300 hover:scale-105"
+            />
+            <span class="text-lg font-semibold text-gray-800">Banana</span>
+          </div>
+        </div>
+
+        <!-- Navigation Buttons -->
+        <button
+          onclick="slideCrops(-1)"
+          aria-label="Scroll Left"
+          class="absolute top-1/2 left-2 -translate-y-1/2 z-20 bg-green-500 text-white hover:bg-green-600 rounded-full w-10 h-10 flex items-center justify-center shadow-lg transition-all duration-300"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="2"
+            stroke="currentColor"
+            class="w-6 h-6"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M15 19l-7-7 7-7"
+            />
+          </svg>
+        </button>
+
+        <button
+          onclick="slideCrops(1)"
+          aria-label="Scroll Right"
+          class="absolute top-1/2 right-2 -translate-y-1/2 z-20 bg-green-500 text-white hover:bg-green-600 rounded-full w-10 h-10 flex items-center justify-center shadow-lg transition-all duration-300"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="2"
+            stroke="currentColor"
+            class="w-6 h-6"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M9 5l7 7-7 7"
+            />
+          </svg>
+        </button>
+      </div>
+    </section>
+
+    <!-- Why Choose LeafBuddy -->
+    <section class="min-h-screen py-16 sm:py-24 px-4 sm:px-6">
+      <h2 class="text-5xl font-extrabold text-green-400 text-center mb-16">
+        Why Choose LeafBuddy
+      </h2>
+
+      <div
+        class="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 text-center"
+      >
+        <div
+          class="bg-white p-8 rounded-xl shadow-md hover:shadow-lg transition"
+        >
+          <img
+            src="https://img.icons8.com/ios-filled/100/23d58c/artificial-intelligence.png"
+            alt="AI"
+            class="mx-auto mt-8 mb-8 w-20 h-20"
+          />
+          <h3 class="text-xl font-semibold text-green-400 mb-4">
+            AI-Powered Accuracy
+          </h3>
+          <p class="text-gray-600">
+            LeafBuddy’s AI ensures precise leaf disease identification.
+          </p>
+        </div>
+
+        <div
+          class="bg-white p-8 rounded-xl shadow-md hover:shadow-lg transition"
+        >
+          <img
+            src="https://img.icons8.com/ios-filled/100/23d58c/plant-under-sun.png"
+            alt="Crop Support"
+            class="mx-auto mt-8 mb-8 w-20 h-20"
+          />
+          <h3 class="text-xl font-semibold text-green-400 mb-4">
+            Wide Crop Support
+          </h3>
+          <p class="text-gray-600">
+            From rice to tomatoes, LeafBuddy helps farmers across a variety of
+            crops.
+          </p>
+        </div>
+
+        <div
+          class="bg-white p-8 rounded-xl shadow-md hover:shadow-lg transition"
+        >
+          <img
+            src="https://img.icons8.com/ios-filled/100/23d58c/customer-support.png"
+            alt="Easy to Use"
+            class="mx-auto mt-8 mb-8 w-20 h-20"
+          />
+          <h3 class="text-xl font-semibold text-green-400 mb-4">
+            Farmer-Friendly Design
+          </h3>
+          <p class="text-gray-600">
+            Simple and intuitive interface built for farmers of all backgrounds.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    {% include 'partials/footer.html' %}
+
+    <script>
+      function slideCrops(direction) {
+        const slider = document.getElementById("cropSlider");
+        const cardWidth = slider.querySelector("div").offsetWidth + 24;
+        slider.scrollBy({
+          left: direction * cardWidth,
+          behavior: "smooth",
+        });
+      }
+    </script>
+  </body>
+</html>
