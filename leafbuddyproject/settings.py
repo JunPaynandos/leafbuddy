@@ -7,7 +7,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config('SECRET_KEY')
 DEBUG = config('DEBUG', default=False, cast=bool)
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = [ "leafbuddy.onrender.com", "localhost", "127.0.0.1",]
 # ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'localhost:8000']
 
 # Application definition
@@ -18,8 +18,8 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'django.contrib.staticfiles',
     'daphne',
+    'django.contrib.staticfiles',
     'leafbuddyapp',
 ]
 
