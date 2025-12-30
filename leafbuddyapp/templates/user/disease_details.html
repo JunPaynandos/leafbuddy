@@ -68,7 +68,7 @@
         class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center hidden"
         onclick="closeModal(event)"
       >
-        <div class="bg-white p-6 rounded-lg shadow-lg max-w-lg w-full relative">
+        <div class="bg-white p-6 rounded-lg shadow-lg max-w-lg w-full relative mx-[1.5rem]">
           <h2 class="text-xl font-semibold text-center text-green-600 mb-4">
             Related Images
           </h2>
@@ -95,32 +95,29 @@
       // Function to load related images into the modal
       function loadImages() {
         const modalImages = document.getElementById("modal-images");
-        modalImages.innerHTML = ""; // Clear previous images
+        modalImages.innerHTML = "";
 
         relatedImages.forEach((imagePath) => {
           const imgElement = document.createElement("img");
-          imgElement.src = "{% static '' %}" + imagePath; // Ensure static path is applied correctly
+          imgElement.src = "{% static '' %}" + imagePath;
           imgElement.alt = "Related Image";
           imgElement.classList.add("w-full", "h-auto", "modal-image");
 
           modalImages.appendChild(imgElement);
         });
 
-        // Show the modal
         document.getElementById("image-modal").style.display = "flex";
       }
 
-      // Open the modal on link click
       document.getElementById("view-more-images").onclick = function (event) {
         event.preventDefault();
         loadImages();
       };
 
-      // Close the modal when clicking outside of the modal content
       function closeModal(event) {
         const modal = document.getElementById("image-modal");
         if (event.target === modal || event.target.id === "close-modal") {
-          modal.style.display = "none"; // Hide the modal
+          modal.style.display = "none";
         }
       }
     </script>

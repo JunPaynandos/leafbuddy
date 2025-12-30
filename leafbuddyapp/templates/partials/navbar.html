@@ -29,7 +29,7 @@
       </li>
       <li class="relative group">
         <span
-          class="cursor-pointer text-green-500 {% if current_page == 'features' %}font-bold{% endif %}"
+          class="cursor-pointer text-green-500 {% if current_page == 'features' %}font-bold underline{% endif %}"
           >Features</span
         >
         <ul
@@ -76,7 +76,7 @@
           {% if request.session.profile_image %}
           <img
             src="{{ request.session.profile_image }}"
-            class="w-10 h-10 rounded-full object-cover"
+            class="w-10 h-10 rounded-full object-cover border-2 border-green-400"
           />
           {% else %}
           <div

@@ -1,22 +1,5 @@
-# import tensorflow as tf
 # from tensorflow.keras.models import load_model   # type: ignore
 # from tensorflow.keras.preprocessing import image # type: ignore
-# import numpy as np
-# import efficientnet.tfkeras  # Needed for EfficientNet
-
-# def predict_keras(model_path, image_path, input_size):
-#     # Load model
-#     model = load_model(model_path, compile=False)
-
-#     # Preprocess image dynamically
-#     img = image.load_img(image_path, target_size=(input_size, input_size))
-#     img_array = image.img_to_array(img) / 255.0
-#     img_array = np.expand_dims(img_array, axis=0)
-
-#     # Predict
-#     predictions = model.predict(img_array)
-#     return np.argmax(predictions)
-
 import numpy as np
 import tensorflow as tf
 from tensorflow.keras.models import load_model

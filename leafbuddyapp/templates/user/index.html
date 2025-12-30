@@ -16,6 +16,10 @@
       type="image/png"
     />
     <style>
+      body {
+        overflow-x: hidden;
+      }
+
       @keyframes float {
         0%,
         100% {
@@ -25,11 +29,9 @@
           transform: translateY(-10px);
         }
       }
+
       .float {
         animation: float 3s ease-in-out infinite;
-      }
-      body {
-        overflow-x: hidden;
       }
     </style>
   </head>
@@ -42,7 +44,6 @@
         x-data="{ mobileMenu: false }"
       >
         <div class="container mx-auto flex items-center justify-between">
-          <!-- Logo -->
           <a href="{% url 'home' %}" class="flex items-center space-x-3">
             <img
               src="https://img.icons8.com/ios-filled/50/23d58c/leaf.png"
@@ -111,7 +112,7 @@
                 {% if request.session.profile_image %}
                 <img
                   src="{{ request.session.profile_image }}"
-                  class="w-10 h-10 rounded-full object-cover"
+                  class="w-10 h-10 rounded-full object-cover border-2 border-green-400"
                 />
                 {% else %}
                 <div
@@ -310,10 +311,8 @@
         </div>
       </div>
 
-      <!-- Decorative Images (unchanged, hidden only on small screens) -->
+      <!-- Decorative Images (hidden on small screens) -->
       <div class="pointer-events-none absolute inset-0 z-0 hidden sm:block">
-        <!-- All your original decorative image code remains exactly the same -->
-        <!-- Left Center -->
         <div
           class="absolute"
           style="top: 58%; left: -10rem; transform: translateY(-50%)"
@@ -419,7 +418,7 @@
         class="relative grid grid-cols-1 md:grid-cols-3 gap-12 max-w-7xl mx-auto"
       >
         <div
-          class="group bg-white p-8 rounded-3xl shadow-lg hover:shadow-2xl transition duration-300 text-center"
+          class="group bg-white p-8 rounded-3xl shadow-lg hover:shadow-2xl transition duration-300 text-center border"
         >
           <div class="mb-6 h-[200px] flex items-center justify-center">
             <img
@@ -438,7 +437,7 @@
         </div>
 
         <div
-          class="group bg-white p-8 rounded-3xl shadow-lg hover:shadow-2xl transition duration-300 text-center"
+          class="group bg-white p-8 rounded-3xl shadow-lg hover:shadow-2xl transition duration-300 text-center border"
         >
           <div class="mb-6 h-[200px] flex items-center justify-center">
             <lottie-player
@@ -458,7 +457,7 @@
         </div>
 
         <div
-          class="group bg-white p-8 rounded-3xl shadow-lg hover:shadow-2xl transition duration-300 text-center"
+          class="group bg-white p-8 rounded-3xl shadow-lg hover:shadow-2xl transition duration-300 text-center border"
         >
           <div class="mb-6 h-[200px] flex items-center justify-center">
             <lottie-player
@@ -623,7 +622,7 @@
         class="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 text-center"
       >
         <div
-          class="bg-white p-8 rounded-xl shadow-md hover:shadow-lg transition"
+          class="bg-white p-8 rounded-xl shadow-md hover:shadow-lg transition border"
         >
           <img
             src="https://img.icons8.com/ios-filled/100/23d58c/artificial-intelligence.png"
@@ -639,7 +638,7 @@
         </div>
 
         <div
-          class="bg-white p-8 rounded-xl shadow-md hover:shadow-lg transition"
+          class="bg-white p-8 rounded-xl shadow-md hover:shadow-lg transition border"
         >
           <img
             src="https://img.icons8.com/ios-filled/100/23d58c/plant-under-sun.png"
@@ -656,7 +655,7 @@
         </div>
 
         <div
-          class="bg-white p-8 rounded-xl shadow-md hover:shadow-lg transition"
+          class="bg-white p-8 rounded-xl shadow-md hover:shadow-lg transition border"
         >
           <img
             src="https://img.icons8.com/ios-filled/100/23d58c/customer-support.png"

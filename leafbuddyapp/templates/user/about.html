@@ -24,6 +24,7 @@
           transform: translateY(-10px);
         }
       }
+      
       .float {
         animation: float 3s ease-in-out infinite;
       }
@@ -101,7 +102,7 @@
               {% if request.session.profile_image %}
               <img
                 src="{{ request.session.profile_image }}"
-                class="w-10 h-10 rounded-full object-cover"
+                class="w-10 h-10 rounded-full object-cover border-2 border-green-400"
               />
               {% else %}
               <div
@@ -258,7 +259,7 @@
         </div>
       </section>
 
-      <!-- Team Section (Centered Single Card) -->
+      <!-- Team Section -->
       <section class="py-24 px-6">
         <div class="max-w-6xl mx-auto text-center">
           <h2 class="text-4xl font-extrabold text-green-400 mb-12">
@@ -270,21 +271,17 @@
             agriculture.
           </p>
 
-          <!-- Centered Team Card -->
           <div class="flex justify-center">
             <div class="bg-white p-6 rounded-xl text-center shadow-lg w-72">
-              <!-- Profile Picture -->
               <img
                 src="{% static 'images/icecream.png' %}"
                 alt="Ice Scream"
                 class="w-24 h-24 mx-auto rounded-full mb-4 float object-cover"
               />
 
-              <!-- Name & Role -->
               <h3 class="text-lg font-semibold text-green-700">Ice Scream</h3>
               <p class="text-sm text-gray-600 mb-4">Developer</p>
 
-              <!-- Social Links -->
               <div class="flex justify-center space-x-4 mt-2">
                 <a
                   href="https://github.com/"

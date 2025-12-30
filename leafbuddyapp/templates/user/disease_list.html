@@ -39,7 +39,7 @@
 
       <div class="text-center max-w-2xl mx-auto mb-10">
         <h1 class="text-4xl font-bold text-green-600 mb-4">
-          {{ crop_name }} Diseases
+          {{ crop_name }}  Leaf Diseases
         </h1>
 
         <!-- Search Bar -->
@@ -60,11 +60,6 @@
           >
             <!-- Icon -->
             <div class="flex-shrink-0 bg-green-100 p-2 rounded-full">
-              <!-- <img
-                src="https://img.icons8.com/ios/50/228B22/plant-disease.png"
-                alt="disease icon"
-                class="w-6 h-6"
-              /> -->
               <img
                 src="{% static disease.image %}"
                 alt="{{ disease.name }} image"
@@ -72,7 +67,6 @@
               />
             </div>
 
-            <!-- Disease Name -->
             <div class="text-gray-800 font-medium text-lg capitalize">
               {{ disease.name }}
             </div>

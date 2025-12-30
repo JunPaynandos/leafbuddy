@@ -26,6 +26,5 @@ urlpatterns = [
     path("auth/resend-confirmation-email/", views.resend_confirmation_email, name="resend_confirmation_email"),
     path("forgot-password/", views.forgot_password, name="forgot_password"),
 ]
-
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

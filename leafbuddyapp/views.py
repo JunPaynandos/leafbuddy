@@ -1,34 +1,37 @@
 from django.shortcuts import render, redirect, get_object_or_404
+import os, json, bcrypt, requests
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from .password_reset_utils import generate_password_reset_token
+from django.contrib.auth.tokens import default_token_generator
+from django.contrib.sites.shortcuts import get_current_site
 from django.core.files.storage import default_storage
-from .inference.pytorch_infer import predict_pytorch
-from .inference.keras_infer import predict_keras
-import os, json, uuid, bcrypt, requests
-from .models import AnalysisHistory
+from django.views.decorators.csrf import csrf_exempt
+from django.core.mail import EmailMultiAlternatives
+from django.template.loader import render_to_string
+from datetime import datetime, timezone, timedelta
+from django.contrib.auth import get_user_model
+from django.utils.encoding import force_bytes
+from .utils.supabase_user import SupabaseUser
+from .utils.hf_client import predict_with_hf
+from django.contrib.auth.models import User
+from django.utils.html import strip_tags
+from django.core.mail import send_mail
+from django.http import JsonResponse
+from leafbuddyapp.models import Crop 
 from django.contrib import messages
+from .models import AnalysisHistory
+from mimetypes import guess_type
 from supabase import create_client
+from django.utils import timezone
 from django.conf import settings
 from django.urls import reverse
-
-from django.contrib.auth.tokens import default_token_generator
-from django.core.mail import send_mail
-from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-from django.template.loader import render_to_string
-from django.contrib.auth.models import User
-from django.contrib.sites.shortcuts import get_current_site
-from django.utils.encoding import force_bytes
-from django.contrib.auth.forms import UserCreationForm
-from .utils.supabase_user import SupabaseUser
-from .password_reset_utils import generate_password_reset_token, verify_password_reset_token
-
-from django.core.mail import EmailMultiAlternatives
-from datetime import datetime, timezone, timedelta
 from dateutil import parser
-from postgrest.exceptions import APIError
-import secrets
-from django.utils.html import strip_tags
+from uuid import UUID
+import tempfile
+import logging
+import uuid
 
-
-# from .supabase import supabase
+logger = logging.getLogger(__name__)
 
 SUPABASE_URL = settings.SUPABASE_URL
 SUPABASE_SERVICE_ROLE_KEY = settings.SUPABASE_SERVICE_ROLE_KEY
@@ -39,160 +42,173 @@ DISEASE_JSON_PATH = os.path.join(settings.BASE_DIR, "data", "disease_info.json")
 with open(DISEASE_JSON_PATH, "r") as f:
     DISEASE_DATA = json.load(f)
 
-# Map crop type to model path
-MODEL_PATHS = {
-    'banana': 'models/banana_model.keras',
-    'beans': 'models/beans_model.keras',
-    'chili': 'models/chili_model.keras',
-    'corn': 'models/corn_model.keras',
-    'eggplant': 'models/eggplant_model.pth',
-    'rice': 'models/rice_model.keras',
-}
+User = get_user_model()
+
+GUEST_SCAN_LIMIT = 5
 
 def home(request):
     return render(request, 'user/index.html', {'current_page': 'home'})
 
-
-import os
-import uuid
-import json
-from mimetypes import guess_type
-from django.conf import settings
-from django.core.files.storage import default_storage
-from django.shortcuts import render, redirect
-from .models import AnalysisHistory
-
-from django.views.decorators.csrf import csrf_exempt
-from django.http import JsonResponse
-import tempfile
-import base64
-
 def scan(request):
-    # Get crops list from Supabase
-    crops_res = supabase.table("leafbuddyapp_crop").select("*").execute()
-    crops = crops_res.data
+    # Fetch crops
+    try:
+        crops_res = supabase.table("leafbuddyapp_crop").select("*").execute()
+        crops = crops_res.data or []
+    except Exception:
+        logger.exception("❌ Failed to fetch crops from Supabase")
+        return render(request, "user/scan.html", {
+            "crops": [],
+            "error": "Failed to load crops."
+        })
 
+    # Guest limit (RESET AT MIDNIGHT)
+    is_guest = "user_id" not in request.session
+    guest_limit_reached = False
+
+    if is_guest:
+        today = timezone.localdate()
+        stored_date = request.session.get("guest_scan_date")
+        scan_count = request.session.get("guest_scan_count", 0)
+
+        # Reset every midnight
+        if stored_date != str(today):
+            scan_count = 0
+            request.session["guest_scan_date"] = str(today)
+
+        request.session["guest_scan_count"] = scan_count
+
+        if scan_count >= GUEST_SCAN_LIMIT:
+            guest_limit_reached = True
+
+    # POST → Scan
     if request.method == "POST":
-        crop_id = request.POST.get("crop_type")
-        leaf_image = request.FILES.get("leaf_image")
 
-        # Validate crop
-        crop = next((c for c in crops if str(c["id"]) == crop_id), None)
-        if not crop:
-            return render(request, "user/scan.html", {"crops": crops, "error": "Invalid crop selected."})
-
-        # Model & input size
-        model_path = os.path.join(settings.BASE_DIR, "models", crop["model_file"])
-        input_size = crop.get("input_size", 224)
-
-        # Save uploaded file temporarily
-        temp_path = default_storage.save(f"uploads/{leaf_image.name}", leaf_image)
-        temp_full_path = os.path.join(settings.MEDIA_ROOT, temp_path)
-
-        # Prepare filename and user folder
-        unique_filename = f"{uuid.uuid4()}_{leaf_image.name}"
-        user_id = request.user.id if request.user.is_authenticated else "guest"
-        file_key = f"users/{user_id}/{unique_filename}"
-
-        # Default fallback to local /media/ URL
-        image_url = f"{settings.MEDIA_URL}{temp_path}"
-
-        # Try Supabase upload
-        try:
-            content_type = guess_type(temp_full_path)[0] or "application/octet-stream"
-            with open(temp_full_path, "rb") as file_obj:
-                file_data = file_obj.read()
-
-            upload_response = supabase.storage.from_("leaf-images").upload(
-                file_key,
-                file_data,
-                {"content-type": content_type}
-            )
-
-            if upload_response.get("error"):
-                print("🚨 Supabase upload error:", upload_response["error"])
-            else:
-                print("✅ Supabase upload success:", upload_response)
-                image_url = supabase.storage.from_("leaf-images").get_public_url(file_key)
-
-        except Exception as e:
-            import traceback
-            print("🚨 Exception during Supabase upload:", e)
-            traceback.print_exc()
-
-        # Load class labels
-        label_path = os.path.join(settings.BASE_DIR, "labels", crop["label_file"])
-        with open(label_path, "r") as f:
-            class_labels = json.load(f)
-
-        # Prediction
-        try:
-            if model_path.endswith(".keras"):
-                prediction_index, confidence = predict_keras(model_path, temp_full_path, input_size)
-            elif model_path.endswith(".pth"):
-                num_classes = len(class_labels)
-                prediction_index, confidence = predict_pytorch(
-                    model_path, temp_full_path, num_classes, input_size=(input_size, input_size)
-                )
-            else:
-                raise ValueError("Unsupported model format.")
-        except Exception as e:
-            import traceback
-            print("🚨 Prediction error:", e)
-            traceback.print_exc()
+        # Block guest if limit reached
+        if is_guest and guest_limit_reached:
             return render(request, "user/scan.html", {
                 "crops": crops,
-                "error": f"Prediction error: {e}"
+                "guest_limit_reached": True,
+                "remaining_scans": 0,
+                "error": "Guest scan limit reached for today. Please log in to continue."
             })
 
-        predicted_class = class_labels[prediction_index]
-        crop_key = crop["name"].lower()
-        disease_key = predicted_class.lower()
+        crop_name = request.POST.get("crop_type")
+        leaf_image = request.FILES.get("leaf_image")
 
-        disease_info = DISEASE_DATA.get(crop_key, {}).get(disease_key, {})
+        if not crop_name or not leaf_image:
+            return render(request, "user/scan.html", {
+                "crops": crops,
+                "error": "Missing crop or image."
+            })
 
-        # Save history if logged in
-        # if request.user.is_authenticated:
-        #     AnalysisHistory.objects.create(
-        #         user=request.user,
-        #         crop_id=crop["id"],
-        #         image_url=image_url,
-        #         predicted_class=predicted_class,
-        #         description=disease_info.get("description", "No description available."),
-        #         symptoms=disease_info.get("symptoms", "No symptoms available."),
-        #         treatment=disease_info.get("treatment", "No treatment available."),
-        #         prevention=disease_info.get("prevention", "No prevention available."),
-        #     )
-
-        # Save history if logged in using Supabase session user
-        if "user_id" in request.session:
-            AnalysisHistory.objects.create(
-                user_id=request.session["user_id"],  # Use Supabase ID
-                crop_id=crop["id"],
-                image_url=image_url,
-                predicted_class=predicted_class,
-                confidence=round(confidence * 100, 2),
-                description=disease_info.get("description", "No description available."),
-                symptoms=disease_info.get("symptoms", "No symptoms available."),
-                treatment=disease_info.get("treatment", "No treatment available."),
-                prevention=disease_info.get("prevention", "No prevention available."),
+        # Validate crop
+        crop_data = next(
+            (c for c in crops if c["name"].lower() == crop_name.lower()),
+            None
         )
 
-        # Store in session for result page
+        if not crop_data:
+            return render(request, "user/scan.html", {
+                "crops": crops,
+                "error": "Invalid crop selected."
+            })
+
+        # Save temp file
+        try:
+            suffix = os.path.splitext(leaf_image.name)[1]
+            with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
+                for chunk in leaf_image.chunks():
+                    tmp.write(chunk)
+                temp_full_path = tmp.name
+        except Exception:
+            return render(request, "user/scan.html", {
+                "crops": crops,
+                "error": "Failed to process image."
+            })
+
+        # Upload to Supabase
+        try:
+            file_key = f"{crop_name.lower()}/{uuid.uuid4()}-{leaf_image.name}"
+            content_type = guess_type(leaf_image.name)[0] or "application/octet-stream"
+
+            with open(temp_full_path, "rb") as f:
+                file_data = f.read()
+
+            supabase.storage.from_("leaf-images").upload(
+                file_key, file_data, {"content-type": content_type}
+            )
+
+            image_url = supabase.storage.from_("leaf-images").get_public_url(file_key)
+
+        except Exception as e:
+            os.unlink(temp_full_path)
+            return render(request, "user/scan.html", {
+                "crops": crops,
+                "error": f"Image upload failed: {e}"
+            })
+
+        # Predict via HF
+        try:
+            predicted_class, confidence = predict_with_hf(
+                temp_full_path, crop_name
+            )
+        except Exception:
+            os.unlink(temp_full_path)
+            return render(request, "user/scan.html", {
+                "crops": crops,
+                "error": "Prediction failed."
+            })
+
+        os.unlink(temp_full_path)
+
+        # Disease info
+        disease_info = DISEASE_DATA.get(
+            crop_name.lower(), {}
+        ).get(predicted_class.lower(), {})
+
+        # Save history
+        if "user_id" in request.session:
+            try:
+                django_crop = Crop.objects.get(name__iexact=crop_name)
+                AnalysisHistory.objects.create(
+                    user_id=request.session["user_id"],
+                    crop=django_crop,
+                    image_url=image_url,
+                    predicted_class=predicted_class,
+                    confidence=round(confidence * 100, 2),
+                    description=disease_info.get("description", ""),
+                    symptoms=disease_info.get("symptoms", ""),
+                    treatment=disease_info.get("treatment", ""),
+                    prevention=disease_info.get("prevention", ""),
+                )
+            except Exception:
+                logger.exception("❌ Failed to save history")
+
+        # Increment guest count
+        if is_guest:
+            request.session["guest_scan_count"] += 1
+            request.session.modified = True
+
+        # Save result
         request.session["scan_result"] = {
             "result": predicted_class,
             "confidence": round(confidence * 100, 2),
-            "crop": crop["name"].capitalize(),
+            "crop": crop_name.capitalize(),
             "image_url": image_url,
-            "description": disease_info.get("description", "No description available."),
-            "symptoms": disease_info.get("symptoms", "No symptoms available."),
-            "treatment": disease_info.get("treatment", "No treatment available."),
-            "prevention": disease_info.get("prevention", "No prevention available."),
+            **disease_info
         }
 
         return redirect("result")
 
-    return render(request, "user/scan.html", {"crops": crops, "current_page": "features"})
+    # GET
+    return render(request, "user/scan.html", {
+        "crops": crops,
+        "current_page": "features",
+        "guest_limit_reached": guest_limit_reached,
+        "remaining_scans": max(
+            0, GUEST_SCAN_LIMIT - request.session.get("guest_scan_count", 0)
+        ),
+    })
 
 def result(request):
     data = request.session.pop("scan_result", None)
@@ -206,57 +222,62 @@ def predict_frame(request):
     if request.method != "POST":
         return JsonResponse({"error": "Invalid request method"}, status=405)
 
-    crop_id = request.POST.get("crop_type")
+    is_guest = "user_id" not in request.session
+
+    # Guest limit (RESET AT MIDNIGHT)
+    if is_guest:
+        today = timezone.localdate()
+        stored_date = request.session.get("guest_scan_date")
+        scan_count = request.session.get("guest_scan_count", 0)
+
+        if stored_date != str(today):
+            scan_count = 0
+            request.session["guest_scan_date"] = str(today)
+
+        request.session["guest_scan_count"] = scan_count
+
+        if scan_count >= GUEST_SCAN_LIMIT:
+            return JsonResponse({
+                "error": "Guest scan limit reached for today. Please log in to continue.",
+                "remaining_attempts": 0
+            }, status=403)
+
+    crop_name = request.POST.get("crop_type")
     image_file = request.FILES.get("frame")
 
-    if not crop_id or not image_file:
+    if not crop_name or not image_file:
         return JsonResponse({"error": "Missing crop_type or frame"}, status=400)
 
-    # Get crop info
-    crops_res = supabase.table("leafbuddyapp_crop").select("*").execute()
-    crops = crops_res.data
-    crop = next((c for c in crops if str(c["id"]) == crop_id), None)
-
-    if not crop:
-        return JsonResponse({"error": "Invalid crop_type"}, status=400)
-
-    # Save frame to a temp file
-    with tempfile.NamedTemporaryFile(delete=False, suffix=".jpg") as tmp_file:
+    # Save frame
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".jpg") as tmp:
         for chunk in image_file.chunks():
-            tmp_file.write(chunk)
-        temp_path = tmp_file.name
+            tmp.write(chunk)
+        temp_path = tmp.name
 
-    # Predict
+    # Predict viw HF
     try:
-        model_path = os.path.join(settings.BASE_DIR, "models", crop["model_file"])
-        input_size = crop.get("input_size", 224)
-        label_path = os.path.join(settings.BASE_DIR, "labels", crop["label_file"])
-
-        with open(label_path, "r") as f:
-            class_labels = json.load(f)
-
-        if model_path.endswith(".keras"):
-            prediction_index, confidence = predict_keras(model_path, temp_path, input_size)
-        elif model_path.endswith(".pth"):
-            num_classes = len(class_labels)
-            prediction_index, confidence = predict_pytorch(
-                model_path, temp_path, num_classes, input_size=(input_size, input_size)
-            )
-        else:
-            raise ValueError("Unsupported model format")
-
-        predicted_class = class_labels[prediction_index]
-
-        return JsonResponse({
-            "disease": predicted_class,
-            "confidence": round(confidence * 100, 2),
-        })
-
+        predicted_class, confidence = predict_with_hf(temp_path, crop_name)
     except Exception as e:
-        return JsonResponse({"error": str(e)}, status=500)
+        os.unlink(temp_path)
+        return JsonResponse({"error": f"Prediction failed: {e}"}, status=500)
 
-from django.contrib.auth.decorators import login_required
-from uuid import UUID
+    os.unlink(temp_path)
+
+    # Increment guest count
+    if is_guest:
+        request.session["guest_scan_count"] += 1
+        request.session.modified = True
+        remaining_attempts = max(
+            0, GUEST_SCAN_LIMIT - request.session["guest_scan_count"]
+        )
+    else:
+        remaining_attempts = None
+
+    return JsonResponse({
+        "disease": predicted_class,
+        "confidence": round(confidence * 100, 2),
+        "remaining_attempts": remaining_attempts
+    })
 
 def analysis_history(request):
     if "user_id" not in request.session:
@@ -286,12 +307,11 @@ def load_disease_data():
         return json.load(f)
 
 def load_disease_images():
-    # Load the disease_images.json file located in your static folder
     json_file_path = os.path.join(settings.BASE_DIR, "data", "disease_images.json")
     
     try:
         with open(json_file_path, 'r') as file:
-            return json.load(file)  # Returns a dictionary of disease names and related image URLs
+            return json.load(file)  # Returns a dictionary
     except Exception as e:
         return {}
 
@@ -317,7 +337,7 @@ def crop_diseases(request, crop_name):
     diseases = []
     for disease_name, disease_data in crop.items():
         if disease_name not in ['scientific_name', 'thumbnail_image']:
-            disease_image = disease_data.get('image')  # Assuming disease-specific image key is `image`
+            disease_image = disease_data.get('image')
             diseases.append({
                 "name": disease_name.capitalize(),
                 "image": disease_image,
@@ -333,11 +353,9 @@ def disease_detail(request, crop_name, disease_name):
     if not disease:
         return redirect("crop_diseases", crop_name=crop_name)
 
-    # is_healthy = "healthy" in disease_name.lower()
     is_healthy = "healthy" in disease_name.lower() or disease_name.lower() == "undefined"
 
-    # Fetch the disease image directly from the disease data
-    disease_image = disease.get('image')  # This should be the path of the disease image
+    disease_image = disease.get('image')
 
     disease_images = load_disease_images()
     related_images = disease_images.get(disease_name.lower(), [])
@@ -346,7 +364,7 @@ def disease_detail(request, crop_name, disease_name):
         "crop_name": crop_name.capitalize(),
         "disease_name": disease_name.capitalize(),
         "is_healthy": is_healthy,
-        "image_path": disease_image,  # Pass the disease-specific image path
+        "image_path": disease_image,
         "related_images": json.dumps(related_images),
         "current_page": "features"
     }
@@ -366,8 +384,29 @@ def contact(request):
         name = request.POST.get('name')
         email = request.POST.get('email')
         message = request.POST.get('message')
+
+        email_subject = f"New Contact Message from {name}"
+        email_message = f"""
+You received a new message from your website contact form.
+
+Name: {name}
+Email: {email}
+
+Message:
+{message}
+        """
+
+        send_mail(
+            email_subject,
+            email_message,
+            settings.DEFAULT_FROM_EMAIL,
+            ['leafbuddy8@gmail.com'],  # where you receive the message
+            fail_silently=False,
+        )
+
         messages.success(request, "Message sent successfully!")
         return redirect('contact')
+
     return render(request, 'user/contact.html', {'current_page': 'contact'})
 
 def signup(request):
@@ -402,7 +441,6 @@ def signup(request):
             if existing_email.data:
                 errors["email"] = "Email already registered."
 
-            # Check username uniqueness
             existing_username = supabase.table("users").select("username").eq("username", username).execute()
             if existing_username.data:
                 errors["username"] = "Username already taken."
@@ -473,7 +511,7 @@ def confirm_email(request, uidb64, token):
     try:
         uid = urlsafe_base64_decode(uidb64).decode()
         user_dict = supabase.table("users").select("*").eq("id", uid).execute().data[0]
-        mock_user = SupabaseUser(user_dict)  # Wrap here
+        mock_user = SupabaseUser(user_dict)
 
         if default_token_generator.check_token(mock_user, token):
             supabase.table("users").update({
@@ -589,7 +627,7 @@ def login(request):
 
         # Update last_login
         supabase.table("users").update({
-            "last_login": datetime.now(timezone.utc).isoformat()
+            "last_login": timezone.now().isoformat()
         }).eq("id", user_data["id"]).execute()
 
         initials = (user_data["first_name"][:1] + user_data["last_name"][:1]).upper()
@@ -640,75 +678,6 @@ def logout(request):
 
     return redirect("home")
 
-# def auth_callback(request):
-#     access_token = request.GET.get("access_token")
-#     if not access_token:
-#         return redirect("login")
-
-#     # Get user info from Supabase
-#     headers = {"Authorization": f"Bearer {access_token}", "apikey": SUPABASE_SERVICE_ROLE_KEY}
-#     res = requests.get(f"{SUPABASE_URL}/auth/v1/user", headers=headers)
-
-#     if res.status_code != 200:
-#         return redirect("login")
-
-#     user_data = res.json()
-#     email = user_data.get("email")
-#     metadata = user_data.get("user_metadata", {})
-#     first_name = metadata.get("full_name", "").split(" ")[0] or "User"
-#     last_name = " ".join(metadata.get("full_name", "").split(" ")[1:]) or ""
-#     avatar_url = metadata.get("avatar_url")
-
-#     existing = supabase.table("users").select("*").eq("email", email).execute()
-
-#     if existing.data:
-#         user = existing.data[0]
-
-#         # If user has no auth_provider or it's still 'email', update it to google
-#         if user.get("auth_provider") != "google":
-#             supabase.table("users").update({
-#                 "auth_provider": "google",
-#                 "profile_image": avatar_url or user.get("profile_image"),
-#                 "first_name": user.get("first_name") or first_name,
-#                 "last_name": user.get("last_name") or last_name
-#             }).eq("id", user["id"]).execute()
-
-#         supabase.table("users").update({
-#             "last_login": datetime.now(timezone.utc).isoformat()
-#         }).eq("id", user["id"]).execute()
-
-#         user = supabase.table("users").select("*").eq("id", user["id"]).single().execute().data
-
-#     else:
-#         insert = supabase.table("users").insert([{
-#             "first_name": first_name,
-#             "last_name": last_name,
-#             "username": email.split("@")[0],
-#             "email": email,
-#             "password": None,
-#             "profile_image": avatar_url,
-#             "auth_provider": "google",
-#             "last_login": datetime.now(timezone.utc).isoformat()
-#         }]).execute()
-
-#         user = insert.data[0]
-
-#         print("PROFILE IMAGE SESSION:", user.get("profile_image"))
-
-#     initials = (user.get("first_name", "")[:1] + user.get("last_name", "")[:1]).upper()
-
-#     request.session["user_id"] = user_data["id"]
-#     request.session["user_email"] = user["email"]
-#     request.session["user_name"] = f"{user.get('first_name', '')} {user.get('last_name', '')}".strip()
-#     request.session["profile_image"] = user.get("profile_image")
-#     request.session["initials"] = initials
-
-#     if user.get("password") is None:
-#         messages.info(request, "You signed in with Google. Set a password to enable email login.")
-#         return redirect("set_password")
-
-#     return redirect("home")
-
 def auth_callback(request):
     access_token = request.GET.get("access_token")
     if not access_token:
@@ -728,7 +697,7 @@ def auth_callback(request):
     last_name = " ".join(metadata.get("full_name", "").split(" ")[1:]) or ""
     avatar_url = metadata.get("avatar_url")
 
-    # Query by email (not UUID)
+    # Query by email
     existing = supabase.table("users").select("*").eq("email", email).execute()
 
     if existing.data:
@@ -744,7 +713,7 @@ def auth_callback(request):
             }).eq("id", user["id"]).execute()
 
         supabase.table("users").update({
-            "last_login": datetime.now(timezone.utc).isoformat()
+            "last_login": timezone.now().isoformat()
         }).eq("id", user["id"]).execute()
 
         user = supabase.table("users").select("*").eq("id", user["id"]).single().execute().data
@@ -758,14 +727,14 @@ def auth_callback(request):
             "password": None,
             "profile_image": avatar_url,
             "auth_provider": "google",
-            "last_login": datetime.now(timezone.utc).isoformat()
+            "last_login": timezone.now().isoformat()
         }]).execute()
 
         user = insert.data[0]
 
     initials = (user.get("first_name", "")[:1] + user.get("last_name", "")[:1]).upper()
 
-    request.session["user_id"] = user["id"]  # Store the `bigint` ID
+    request.session["user_id"] = user["id"]
     request.session["user_email"] = user["email"]
     request.session["user_name"] = f"{user.get('first_name', '')} {user.get('last_name', '')}".strip()
     request.session["profile_image"] = user.get("profile_image")
@@ -777,323 +746,37 @@ def auth_callback(request):
 
     return redirect("home")
 
-
-# def settings_view(request):
-#     if not request.session.get("user_email"):
-#         return redirect("login")
-
-#     user_id = request.session["user_id"]
-
-#     # Fetch user from Supabase
-#     user_res = supabase.table("users").select("*").eq("id", user_id).single().execute()
-
-#     if not user_res.data:
-#         messages.error(request, "User not found.")
-#         return redirect("login")
-
-#     user = user_res.data
-
-#     full_name = f"{user.get('first_name', '')} {user.get('last_name', '')}".strip()
-#     email = user.get("email")
-#     profile_image = user.get("profile_image")
-#     initials = (user.get("first_name", "")[:1] + user.get("last_name", "")[:1]).upper()
-
-#     context = {
-#         "full_name": full_name,
-#         "email": email,
-#         "profile_image": profile_image,
-#         "initials": initials,
-#         "current_page": "settings",
-#     }
-
-#     return render(request, "user/user_settings.html", context)
-
-# def settings_view(request):
-#     if not request.session.get("user_email"):
-#         return redirect("login")
-
-#     # Get user_id from session
-#     user_id = request.session["user_id"]
-
-#     # Ensure that user_id is UUID type (if not, you might need to cast it)
-#     try:
-#         # Convert user_id to UUID if it isn't already
-#         user_id = uuid.UUID(user_id)
-#     except ValueError:
-#         messages.error(request, "Invalid user ID format.")
-#         return redirect("login")
-
-#     # Fetch user from Supabase (make sure 'id' column is UUID type)
-#     user_res = supabase.table("users").select("*").eq("id", str(user_id)).single().execute()
-
-#     if not user_res.data:
-#         messages.error(request, "User not found.")
-#         return redirect("login")
-
-#     user = user_res.data
-
-#     # Construct full name and other details
-#     full_name = f"{user.get('first_name', '')} {user.get('last_name', '')}".strip()
-#     email = user.get("email")
-#     profile_image = user.get("profile_image")
-#     initials = (user.get("first_name", "")[:1] + user.get("last_name", "")[:1]).upper()
-
-#     context = {
-#         "full_name": full_name,
-#         "email": email,
-#         "profile_image": profile_image,
-#         "initials": initials,
-#         "current_page": "settings",
-#     }
-
-#     return render(request, "user/user_settings.html", context)
-
-# def settings_view(request):
-#     if not request.session.get("user_email"):
-#         return redirect("login")
-
-#     # Get user_id from session
-#     user_id = request.session["user_id"]
-
-#     # Ensure that user_id is UUID type (if not, you might need to cast it)
-#     try:
-#         # Convert user_id to UUID if it isn't already
-#         user_id = uuid.UUID(user_id)
-#     except ValueError:
-#         messages.error(request, "Invalid user ID format.")
-#         return redirect("login")
-
-#     # Fetch user from Supabase (make sure 'id' column is UUID type)
-#     user_res = supabase.table("users").select("*").eq("id", str(user_id)).single().execute()
-
-#     if not user_res.data:
-#         messages.error(request, "User not found.")
-#         return redirect("login")
-
-#     user = user_res.data
-
-#     # Handle full name split correctly: 
-#     # 'first_name' is 'Allan Caye' and 'last_name' is 'Megumin'
-#     full_name = f"{user.get('first_name', '')} {user.get('last_name', '')}".strip()
-
-#     # Split 'first_name' into parts. The entire first_name is 'Allan Caye' in your case
-#     first_name = user.get('first_name', '')
-    
-#     # The 'last_name' remains as is
-#     last_name = user.get('last_name', '')
-
-#     # Construct initials (first letter of first_name and last_name)
-#     initials = (first_name[:1] + last_name[:1]).upper()
-
-#     email = user.get("email")
-#     profile_image = user.get("profile_image")
-
-#     context = {
-#         "full_name": full_name,
-#         "first_name": first_name,
-#         "last_name": last_name,
-#         "email": email,
-#         "profile_image": profile_image,
-#         "initials": initials,
-#         "current_page": "settings",
-#     }
-
-#     return render(request, "user/user_settings.html", context)
-
-
-from django.shortcuts import render, redirect
-from django.contrib import messages
-from django.core.exceptions import ValidationError
-from django.core.files.storage import FileSystemStorage
-from django.contrib.auth import get_user_model  # Get custom user model
-from uuid import UUID
-
-User = get_user_model()  # This will use your custom user model
-
-# def settings_view(request):
-#     if not request.session.get("user_email"):
-#         return redirect("login")
-
-#     # Get user_id from session
-#     user_id = request.session["user_id"]
-
-#     # Ensure that user_id is UUID type (if not, you might need to cast it)
-#     try:
-#         # Convert user_id to UUID if it isn't already
-#         user_id = UUID(user_id)
-#     except ValueError:
-#         messages.error(request, "Invalid user ID format.")
-#         return redirect("login")
-
-#     # Fetch user from the custom user model
-#     user = User.objects.filter(id=user_id).first()
-
-#     if not user:
-#         messages.error(request, "User not found.")
-#         return redirect("login")
-
-#     # Handle form submission
-#     if request.method == 'POST':
-#         # Get form data
-#         first_name = request.POST.get('first_name')
-#         last_name = request.POST.get('last_name')
-#         profile_image = request.FILES.get('profile_image')
-
-#         # Validation for first name and last name
-#         if len(first_name) < 2 or len(last_name) < 2:
-#             messages.error(request, "First and Last name must be at least 2 characters long.")
-#             return redirect("settings")
-
-#         # Update user data
-#         user.first_name = first_name
-#         user.last_name = last_name
-
-#         # Handle profile image upload
-#         if profile_image:
-#             # Save the uploaded image
-#             fs = FileSystemStorage()
-#             filename = fs.save(profile_image.name, profile_image)
-#             user.profile_image = fs.url(filename)
-
-#         user.save()  # Save the updated user information
-
-#         messages.success(request, "Profile updated successfully.")
-#         return redirect("settings")
-
-#     # Fetch user data to pre-fill the form
-#     full_name = f"{user.first_name} {user.last_name}".strip()
-#     first_name = user.first_name
-#     last_name = user.last_name
-#     email = user.email
-#     profile_image = user.profile_image
-#     # Generate initials from first_name and last_name
-#     first_initial = user.first_name[:1] if user.first_name else ""
-#     last_initial = user.last_name[:1] if user.last_name else ""
-#     initials = (first_initial + last_initial).upper()
-
-
-#     context = {
-#         "full_name": full_name,
-#         "first_name": first_name,
-#         "last_name": last_name,
-#         "email": email,
-#         "profile_image": profile_image,
-#         "initials": initials,
-#         "current_page": "settings",
-#     }
-
-#     return render(request, "user/user_settings.html", context)
-
-
-# from supabase import create_client, Client
-# import io
-# import os
-
-# Initialize Supabase client
-# supabase = create_client(settings.SUPABASE_URL, settings.SUPABASE_SERVICE_ROLE_KEY)
-
-import uuid
-from datetime import datetime
-from django.core.files.storage import default_storage
-from django.core.files.base import ContentFile
-
-# Create the Supabase client
-# supabase = create_client(settings.SUPABASE_URL, settings.SUPABASE_SERVICE_ROLE_KEY)
-
 def settings_view(request):
     if not request.session.get("user_email"):
         return redirect("login")
 
-    # Get user_id from session
     user_id = request.session["user_id"]
 
-    # Ensure that user_id is UUID type (if not, you might need to cast it)
     try:
         user_id = UUID(user_id)
     except ValueError:
         messages.error(request, "Invalid user ID format.")
         return redirect("login")
 
-    # Fetch user from the custom user model
     user = User.objects.filter(id=user_id).first()
-
     if not user:
         messages.error(request, "User not found.")
         return redirect("login")
 
-    # Handle form submission
-    if request.method == 'POST':
-        # Get form data
-        first_name = request.POST.get('first_name')
-        last_name = request.POST.get('last_name')
-        profile_image = request.FILES.get('profile_image')
-
-        # Validation for first name and last name
-        if len(first_name) < 2 or len(last_name) < 2:
-            messages.error(request, "First and Last name must be at least 2 characters long.")
-            return redirect("settings")
-
-        # Update user data
-        user.first_name = first_name
-        user.last_name = last_name
-
-        # Handle profile image upload to Supabase
-        if profile_image:
-            # Read the image data
-            image_data = profile_image.read()
-
-            # Generate a unique filename using UUID
-            unique_id = uuid.uuid4()  # Use UUID for uniqueness
-            file_extension = profile_image.name.split('.')[-1]  # Get the file extension
-            file_name = f"{user.id}_{unique_id}.{file_extension}"  # Unique filename with UUID
-            storage_path = f"profile_images/{file_name}"
-
-            try:
-                # Upload the image to Supabase
-                response = supabase.storage.from_("profile-pictures").upload(storage_path, image_data)
-
-                # Check if the upload was successful
-                if response.get("data"):
-                    # Get the public URL of the uploaded image
-                    public_url = response["data"]["publicURL"]
-                    user.profile_image = public_url  # Save the URL to the user's profile image field
-                    user.save()
-
-                    messages.success(request, "Profile image uploaded successfully.")
-                else:
-                    # If the response contains an error, handle it
-                    error_message = response.get("error", {}).get("message", "Unknown error")
-                    messages.error(request, f"Failed to upload profile image: {error_message}")
-            
-            except Exception as e:
-                # Handle any exception that occurs during upload
-                print(f"Error uploading file: {e}")
-                messages.error(request, f"There was an error uploading the profile image: {e}")
-    
-        else:
-            messages.error(request, "No profile image selected.")
-
-        return redirect("settings")
-
-    # Fetch user data to pre-fill the form
-    full_name = f"{user.first_name} {user.last_name}".strip()
-    first_name = user.first_name
-    last_name = user.last_name
-    email = user.email
-    profile_image = user.profile_image
-
-    # Generate initials from first_name and last_name
-    first_initial = user.first_name[:1] if user.first_name else ""
-    last_initial = user.last_name[:1] if user.last_name else ""
-    initials = (first_initial + last_initial).upper()
+    # Fetch analysis history for current user
+    analyses = AnalysisHistory.objects.filter(user_id=str(user.id)).order_by("-created_at")
+    total_scans = analyses.count()
+    latest_scans = AnalysisHistory.objects.filter(user_id=str(user.id)).order_by("-created_at")[:3]
 
     context = {
-        "full_name": full_name,
-        "first_name": first_name,
-        "last_name": last_name,
-        "email": email,
-        "profile_image": profile_image,
-        "initials": initials,
+        "user": user,
+        "first_name": user.first_name,
+        "last_name": user.last_name,
+        "email": user.email,
+        "profile_image": user.profile_image,
+        "initials": (user.first_name[:1] + user.last_name[:1]).upper(),
+        "total_scans": total_scans,
+        "latest_scans": latest_scans,
         "current_page": "settings",
     }
 
@@ -1108,7 +791,6 @@ def delete_account(request):
     # Delete from custom users table
     supabase.table("users").delete().eq("id", user_id).execute()
 
-    # Optional: delete profile images folder
     supabase.storage.from_("leaf-images").remove([f"profiles/{user_id}"])
 
     request.session.flush()
@@ -1161,4 +843,3 @@ def forgot_password(request):
         })
 
     return render(request, "auth/forgot_password.html")
-

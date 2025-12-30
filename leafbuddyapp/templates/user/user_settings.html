@@ -4,7 +4,6 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>User Settings | LeafBuddy</title>
-
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/alpinejs" defer></script>
     <link
@@ -21,28 +20,32 @@
       class="max-w-4xl mx-auto pt-[8rem]"
       x-data="{
         preview: '{{ profile_image|default:'' }}',
-        showPreview(file){
-            if (!file) return;
-            let reader = new FileReader();
-            reader.onload = e => this.preview = e.target.result;
-            reader.readAsDataURL(file);
-        },
-        firstName: '{{ first_name }}',   <!-- Make sure this variable is passed -->
-        lastName: '{{ last_name }}'      <!-- Make sure this variable is passed -->
-     }"
+        loading: false,
+        showPreview(file) {
+          if (!file) return;
+          const reader = new FileReader();
+          reader.onload = e => this.preview = e.target.result;
+          reader.readAsDataURL(file);
+        }
+      }"
     >
       <h1 class="text-4xl text-green-500 font-bold text-center mb-10">
         Account Settings
       </h1>
 
-      <!-- Profile Card -->
-      <div class="bg-white p-10 space-y-6">
-        <!-- Profile Picture -->
+      <form method="POST"  
+        enctype="multipart/form-data" 
+        class="bg-white p-10 space-y-6" 
+        @submit="loading = true"
+      >
+        {% csrf_token %}
+
+        <!-- PROFILE IMAGE -->
         <div class="flex flex-col items-center space-y-4">
           <template x-if="preview">
             <img
               :src="preview"
-              class="w-32 h-32 rounded-full object-cover shadow-md border-4 border-white"
+              class="w-32 h-32 rounded-full object-cover shadow border-2 border-green-400"  
             />
           </template>
 
@@ -54,124 +57,94 @@
             </div>
           </template>
 
-          <div>
-            <h2 class="text-3xl font-semibold text-gray-800">
-              {{ full_name }}
-            </h2>
-            <p class="text-gray-500 text-center">{{ email }}</p>
-          </div>
+          <span>{{ user.email }}</span>
 
+          <!-- FILE INPUT -->
           <label class="cursor-pointer">
-            <span
-              class="bg-green-500 text-white px-4 py-2 rounded-md shadow hover:bg-green-600"
-              >Change Picture</span
-            >
+            <span class="bg-green-500 text-white px-4 py-2 rounded-md shadow hover:bg-green-600">
+              Change Picture
+            </span>
             <input
               type="file"
               name="profile_image"
               class="hidden"
+              accept="image/*"
               @change="showPreview($event.target.files[0])"
             />
           </label>
 
           <p class="text-xs text-gray-500">
-            Image preview only — changes save after clicking "Save Changes"
+            Image preview only — saved after clicking “Save Changes”
           </p>
         </div>
 
         <hr />
 
-        <!-- FORM -->
-        <form method="POST" enctype="multipart/form-data" class="space-y-6">
-          {% csrf_token %}
-
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <!-- First Name -->
-            <div>
-              <label class="font-medium">First Name</label>
-              <input
-                type="text"
-                name="first_name"
-                value="{{ first_name }}"
-                class="w-full border rounded-lg px-4 py-2 outline-none focus:ring-2 focus:ring-green-400"
-              />
-            </div>
-
-            <!-- Last Name -->
-            <div>
-              <label class="font-medium">Last Name</label>
-              <input
-                type="text"
-                name="last_name"
-                value="{{ last_name }}"
-                class="w-full border rounded-lg px-4 py-2 outline-none focus:ring-2 focus:ring-green-400"
-              />
-            </div>
-          </div>
-
-          <!-- Profile Image -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label class="font-medium">Profile Image</label>
+            <label class="font-medium">First Name</label>
             <input
-              type="file"
-              name="profile_image"
-              class="w-full border rounded-lg px-4 py-2 outline-none focus:ring-2 focus:ring-green-400"
+              type="text"
+              name="first_name"
+              value="{{ first_name }}"
+              class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-green-400"
             />
-            <p class="text-xs text-gray-500 mt-1">Upload a new profile image</p>
           </div>
 
-          <!-- Save Button -->
-          <button
-            type="submit"
-            class="w-full bg-green-500 text-white py-3 rounded-lg font-semibold hover:bg-green-600 transition"
-          >
-            Save Changes
-          </button>
-        </form>
-
-        <!-- Delete Account Section -->
-        <div class="pt-6 border-t mt-6">
-          <!-- <h3 class="text-xl font-semibold text-red-600 mb-2">Danger Zone</h3> -->
-
-          <button
-            @click="showDelete=true"
-            class="bg-red-500 text-white px-5 py-2 rounded-md hover:bg-red-600"
-          >
-            Delete Account
-          </button>
+          <div>
+            <label class="font-medium">Last Name</label>
+            <input
+              type="text"
+              name="last_name"
+              value="{{ last_name }}"
+              class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-green-400"
+            />
+          </div>
         </div>
-      </div>
 
-      <!-- DELETE MODAL -->
-      <div x-data="{showDelete:false}">
-        <div
-          x-show="showDelete"
-          class="fixed inset-0 bg-black/40 flex items-center justify-center z-50"
+        <button
+          type="submit"
+          class="w-full bg-green-500 text-white py-3 rounded-lg font-semibold hover:bg-green-600"
         >
-          <div class="bg-white p-8 rounded-xl shadow max-w-sm w-full">
-            <h2 class="text-xl font-bold mb-4 text-red-500">Delete Account?</h2>
-            <p class="text-gray-600 mb-6">
-              This action cannot be undone. All your data and scans will be
-              permanently deleted.
-            </p>
+          Save Changes
+        </button>
+      </form>
+      
+      <!-- Analysis History -->
+      <div class="mt-10 px-12 sm:px-10">
+        <h2 class="text-2xl font-semibold text-green-600 mb-6">Your Recent Scans</h2>
 
-            <div class="flex justify-end space-x-3">
-              <button
-                @click="showDelete=false"
-                class="px-4 py-2 rounded bg-gray-200"
-              >
-                Cancel
-              </button>
+        {% if latest_scans %}
+        <div class="flex flex-wrap gap-4 mb-8">
+          {% for scan in latest_scans %}
+          <div class="bg-white rounded-lg shadow flex w-full sm:w-[48%] md:w-[32%] hover:shadow-lg transition overflow-hidden border">
+            {% if scan.image_url %}
+            <img src="{{ scan.image_url }}" alt="{{ scan.crop.name }}" class="w- h-24 object-cover m-2 rounded" />
+            {% else %}
+            <div class="w-24 h-24 bg-gray-200 flex items-center justify-center text-gray-500 text-xs">
+              No Image
+            </div>
+            {% endif %}
 
-              <a
-                href="{% url 'delete_account' %}"
-                class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
-                >Delete</a
-              >
+            <div class="p-2 flex-1 flex flex-col justify-between">
+              <div>
+                <h3 class="font-semibold text-gray-800 text-sm truncate">{{ scan.crop.name }}</h3>
+                <p class="text-gray-600 text-xs break-words">Prediction: {{ scan.predicted_class }}</p>
+                <p class="text-gray-600 text-xs">Confidence: {{ scan.confidence|floatformat:2 }}</p>
+              </div>
+              <div class="mt-1 text-gray-500 text-xs flex flex-col">
+                <span>{{ scan.created_at|date:"M d, Y H:i" }}</span>  
+              </div>
             </div>
           </div>
+          {% endfor %}
         </div>
+        {% else %}
+        <p class="text-gray-500">You haven’t done any scans yet.</p>
+        {% endif %}
       </div>
-    </div>
+    </div>  
+
+    {% include 'partials/footer.html' %}
   </body>
 </html>

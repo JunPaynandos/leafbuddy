@@ -55,8 +55,283 @@
     "disease_images/crop_images/banana/Yellow Sigatoka Disease (5).jpg",
     "disease_images/crop_images/banana/Yellow Sigatoka Disease (6).jpg"
   ],
-  "tomato_anthracnose": [
-    "disease_images/crop_images/tomato/anthracnose_.jpg",
-    "disease_images/crop_images/tomato/early blight.jpg"
+  "angular leaf spot": [
+    "disease_images/crop_images/beans/angular_leaf_spot_1.jpg",
+    "disease_images/crop_images/beans/angular_leaf_spot_2.jpg",
+    "disease_images/crop_images/beans/angular_leaf_spot_3.jpg",
+    "disease_images/crop_images/beans/angular_leaf_spot_4.jpg",
+    "disease_images/crop_images/beans/angular_leaf_spot_5.jpg",
+    "disease_images/crop_images/beans/angular_leaf_spot_6.jpg"
+  ],
+  "bean rust": [
+    "disease_images/crop_images/beans/bean_rust_train.8.jpg",
+    "disease_images/crop_images/beans/bean_rust_train.9.jpg",
+    "disease_images/crop_images/beans/bean_rust_train.15.jpg",
+    "disease_images/crop_images/beans/bean_rust_train.18.jpg",
+    "disease_images/crop_images/beans/bean_rust_train.22.jpg",
+    "disease_images/crop_images/beans/bean_rust_train.26.jpg"
+  ],
+  "bean healthy leaf": [
+    "disease_images/crop_images/beans/healthy_train.0.jpg",
+    "disease_images/crop_images/beans/healthy_train.18.jpg",
+    "disease_images/crop_images/beans/healthy_train.39.jpg",
+    "disease_images/crop_images/beans/healthy_train.47.jpg",
+    "disease_images/crop_images/beans/healthy_train.50.jpg",
+    "disease_images/crop_images/beans/healthy_train.61.jpg"
+  ],
+  "chilli healthy leaf": [
+    "disease_images/crop_images/chilli/Cabai sehat001 (1).jpg",
+    "disease_images/crop_images/chilli/Cabai sehat008.jpg",
+    "disease_images/crop_images/chilli/Cabai sehat012.jpg",
+    "disease_images/crop_images/chilli/Cabai sehat020.jpg",
+    "disease_images/crop_images/chilli/Cabai sehat022.jpg",
+    "disease_images/crop_images/chilli/Cabai sehat025.jpg"
+  ],
+  "leaf curl": [
+    "disease_images/crop_images/chilli/download (7) (2).jpg",
+    "disease_images/crop_images/chilli/download (8) (1).jpg",
+    "disease_images/crop_images/chilli/download (8)a.jpg",
+    "disease_images/crop_images/chilli/download (10) (1).jpg",
+    "disease_images/crop_images/chilli/download (13) (1).jpg",
+    "disease_images/crop_images/chilli/images (2)a.jpg"
+  ],
+  "leaf spot": [
+    "disease_images/crop_images/chilli/leaf spot07 (1).jpg",
+    "disease_images/crop_images/chilli/leaf spot08.jpg",
+    "disease_images/crop_images/chilli/leaf spot10 (1).jpg",
+    "disease_images/crop_images/chilli/leaf spot13.jpg",
+    "disease_images/crop_images/chilli/leaf spot14 (1).jpg",
+    "disease_images/crop_images/chilli/leaf spot18 (1).jpg"
+  ],
+  "whitefly": [
+    "disease_images/crop_images/chilli/download (2) (1).jpg",
+    "disease_images/crop_images/chilli/download (12) (2).jpg",
+    "disease_images/crop_images/chilli/download (14) (1).jpg",
+    "disease_images/crop_images/chilli/download (23).jpg",
+    "disease_images/crop_images/chilli/download (21).jpg",
+    "disease_images/crop_images/chilli/download (26).jpg"
+  ],
+  "yellowish": [
+    "disease_images/crop_images/chilli/Cabai virus kuning12.jpg",
+    "disease_images/crop_images/chilli/Cabai virus kuning16.jpg",
+    "disease_images/crop_images/chilli/Cabai virus kuning19.jpg",
+    "disease_images/crop_images/chilli/Cabai virus kuning23.jpg",
+    "disease_images/crop_images/chilli/Cabai virus kuning16.jpg",
+    "disease_images/crop_images/chilli/Cabai virus kuning34 (1).jpg"
+  ],
+  "blight": [
+    "disease_images/crop_images/corn/Corn_Blight (1).jpeg",
+    "disease_images/crop_images/corn/Corn_Blight (3) (1).jpg",
+    "disease_images/crop_images/corn/Corn_Blight (6).jpg",
+    "disease_images/crop_images/corn/Corn_Blight (13).jpg",
+    "disease_images/crop_images/corn/Corn_Blight (14).jpg",
+    "disease_images/crop_images/corn/Corn_Blight (19).jpg"
+  ],
+  "common rust": [
+    "disease_images/crop_images/corn/Corn_Common_Rust (2).jpg",
+    "disease_images/crop_images/corn/Corn_Common_Rust (4).jpg",
+    "disease_images/crop_images/corn/Corn_Common_Rust (7).jpg",
+    "disease_images/crop_images/corn/Corn_Common_Rust (11).jpg",
+    "disease_images/crop_images/corn/Corn_Common_Rust (16).jpg",
+    "disease_images/crop_images/corn/Corn_Common_Rust (32).jpg"
+  ],
+  "gray leaf spot": [
+    "disease_images/crop_images/corn/Corn_Gray_Spot (7).jpg",
+    "disease_images/crop_images/corn/Corn_Gray_Spot (9).jpg",
+    "disease_images/crop_images/corn/Corn_Gray_Spot (11).jpg",
+    "disease_images/crop_images/corn/Corn_Gray_Spot (14).jpg",
+    "disease_images/crop_images/corn/Corn_Gray_Spot (18).jpg",
+    "disease_images/crop_images/corn/Corn_Gray_Spot (29).jpg"
+  ],
+  "corn healthy leaf": [
+    "disease_images/crop_images/corn/Corn_Health (2) (1).jpg",
+    "disease_images/crop_images/corn/Corn_Health (4).jpg",
+    "disease_images/crop_images/corn/Corn_Health (17).jpg",
+    "disease_images/crop_images/corn/Corn_Health (19).jpg",
+    "disease_images/crop_images/corn/Corn_Health (20).jpg",
+    "disease_images/crop_images/corn/Corn_Health (27).jpg"
+  ],
+  "healthy leaf": [
+    "disease_images/crop_images/eggplant/healthy_leaf0001.jpg",
+    "disease_images/crop_images/eggplant/healthy_leaf0003.jpg",
+    "disease_images/crop_images/eggplant/healthy_leaf0004.jpg",
+    "disease_images/crop_images/eggplant/healthy_leaf0009.jpg",
+    "disease_images/crop_images/eggplant/healthy_leaf0023.jpg",
+    "disease_images/crop_images/eggplant/healthy_leaf0011.jpg"
+  ],
+  "insect pest disease": [
+    "disease_images/crop_images/eggplant/insectpest_0001.jpg",
+    "disease_images/crop_images/eggplant/insectpest_0007.jpg",
+    "disease_images/crop_images/eggplant/insectpest_0010 (1).jpg",
+    "disease_images/crop_images/eggplant/insectpest_0014.jpg",
+    "disease_images/crop_images/eggplant/insectpest_0020.jpg",
+    "disease_images/crop_images/eggplant/insectpest_0030.jpg"
+  ],
+  "mosaic virus disease": [
+    "disease_images/crop_images/eggplant/mosaic_virus0005.jpg",
+    "disease_images/crop_images/eggplant/mosaic_virus0010 (1).jpg",
+    "disease_images/crop_images/eggplant/mosaic_virus0014.jpg",
+    "disease_images/crop_images/eggplant/mosaic_virus0015.jpg",
+    "disease_images/crop_images/eggplant/mosaic_virus0022.jpg",
+    "disease_images/crop_images/eggplant/mosaic_virus0031.jpg"
+  ],
+  "small leaf disease": [
+    "disease_images/crop_images/eggplant/smallleaf_0001.jpg",
+    "disease_images/crop_images/eggplant/smallleaf_0002 (1).jpg",
+    "disease_images/crop_images/eggplant/smallleaf_0004.jpg",
+    "disease_images/crop_images/eggplant/smallleaf_0010.jpg",
+    "disease_images/crop_images/eggplant/smallleaf_0012.jpg",
+    "disease_images/crop_images/eggplant/smallleaf_0014.jpg"
+  ],
+  "white mold disease": [
+    "disease_images/crop_images/eggplant/white_mold0001.jpg",
+    "disease_images/crop_images/eggplant/white_mold0002.jpg",
+    "disease_images/crop_images/eggplant/white_mold0003 (1).jpg",
+    "disease_images/crop_images/eggplant/white_mold0004.jpg",
+    "disease_images/crop_images/eggplant/white_mold0006.jpg"
+  ],
+  "wilt disease": [
+    "disease_images/crop_images/eggplant/wilt_leaf0002.jpg",
+    "disease_images/crop_images/eggplant/wilt_leaf0003 (1).jpg",
+    "disease_images/crop_images/eggplant/wilt_leaf0004.jpg",
+    "disease_images/crop_images/eggplant/wilt_leaf0010.jpg",
+    "disease_images/crop_images/eggplant/wilt_leaf0014.jpg",
+    "disease_images/crop_images/eggplant/wilt_leaf0021.jpg"
+  ],
+  "bacterial leaf blight": [
+    "disease_images/crop_images/rice/bacterial_leaf_blight (1) (1).JPG",
+    "disease_images/crop_images/rice/bacterial_leaf_blight (4).JPG",
+    "disease_images/crop_images/rice/bacterial_leaf_blight (6).JPG",
+    "disease_images/crop_images/rice/bacterial_leaf_blight (7).JPG",
+    "disease_images/crop_images/rice/bacterial_leaf_blight (8).JPG",
+    "disease_images/crop_images/rice/bacterial_leaf_blight (34).jpg"
+  ],
+  "brown spot": [
+    "disease_images/crop_images/rice/brown_spot (11).jpg",
+    "disease_images/crop_images/rice/brown_spot (13).jpg",
+    "disease_images/crop_images/rice/brown_spot (14) (1).jpg",
+    "disease_images/crop_images/rice/brown_spot (25).jpg",
+    "disease_images/crop_images/rice/brown_spot (42).jpg",
+    "disease_images/crop_images/rice/brown_spot (53).jpg"
+  ],
+  "healthy": [
+    "disease_images/crop_images/rice/healthy (1).jpg",
+    "disease_images/crop_images/rice/healthy (5).jpg",
+    "disease_images/crop_images/rice/healthy (11).jpg",
+    "disease_images/crop_images/rice/healthy (14).jpg",
+    "disease_images/crop_images/rice/healthy (17).jpg",
+    "disease_images/crop_images/rice/healthy (23).jpg"
+  ],
+  "leaf blast": [
+    "disease_images/crop_images/rice/leaf_blast (3).jpg",
+    "disease_images/crop_images/rice/leaf_blast (5).jpg",
+    "disease_images/crop_images/rice/leaf_blast (6).jpg",
+    "disease_images/crop_images/rice/leaf_blast (9).jpg",
+    "disease_images/crop_images/rice/leaf_blast (14).jpg",
+    "disease_images/crop_images/rice/leaf_blast (25).jpg"
+  ],
+  "leaf scald": [
+    "disease_images/crop_images/rice/leaf_scald (2).jpg",
+    "disease_images/crop_images/rice/leaf_scald (4).jpg",
+    "disease_images/crop_images/rice/leaf_scald (11).jpg",
+    "disease_images/crop_images/rice/leaf_scald (15).jpg",
+    "disease_images/crop_images/rice/leaf_scald (21).jpg",
+    "disease_images/crop_images/rice/leaf_scald (54).jpg"
+  ],
+  "narrow brown spot": [
+    "disease_images/crop_images/rice/narrow_brown (3).jpg",
+    "disease_images/crop_images/rice/narrow_brown (5).jpg",
+    "disease_images/crop_images/rice/narrow_brown (15).jpg",
+    "disease_images/crop_images/rice/narrow_brown (17).jpg",
+    "disease_images/crop_images/rice/narrow_brown (29).jpg",
+    "disease_images/crop_images/rice/narrow_brown (45).jpg"
+  ],
+  "anthracnose": [
+    "disease_images/crop_images/tomato/T0046_T.JPG",
+    "disease_images/crop_images/tomato/T0047_E (1).JPG",
+    "disease_images/crop_images/tomato/T0048_T (1).JPG",
+    "disease_images/crop_images/tomato/T0051_T.JPG",
+    "disease_images/crop_images/tomato/T0048_S1.JPG",
+    "disease_images/crop_images/tomato/T0052_S1.JPG"
+  ],
+  "bacterial spot": [
+    "disease_images/crop_images/tomato/BS1.JPG",
+    "disease_images/crop_images/tomato/BS2.JPG",
+    "disease_images/crop_images/tomato/BS3.JPG",
+    "disease_images/crop_images/tomato/BS4.JPG",
+    "disease_images/crop_images/tomato/BS5.JPG",
+    "disease_images/crop_images/tomato/BS8.JPG"
+  ],
+  "early blight": [
+    "disease_images/crop_images/tomato/EB1.JPG",
+    "disease_images/crop_images/tomato/EB2.JPG",
+    "disease_images/crop_images/tomato/EB3.JPG",
+    "disease_images/crop_images/tomato/EB4.JPG",
+    "disease_images/crop_images/tomato/EB5.JPG",
+    "disease_images/crop_images/tomato/EB8.JPG"
+  ],
+  "healthy tomato leaf": [
+    "disease_images/crop_images/tomato/H1.JPG",
+    "disease_images/crop_images/tomato/H2.JPG",
+    "disease_images/crop_images/tomato/H3.JPG",
+    "disease_images/crop_images/tomato/H4.JPG",
+    "disease_images/crop_images/tomato/H5.JPG",
+    "disease_images/crop_images/tomato/H8.JPG"
+  ],
+  "late blight": [
+    "disease_images/crop_images/tomato/B1.JPG",
+    "disease_images/crop_images/tomato/B2.JPG",
+    "disease_images/crop_images/tomato/B3.JPG",
+    "disease_images/crop_images/tomato/B4.JPG",
+    "disease_images/crop_images/tomato/B5.JPG",
+    "disease_images/crop_images/tomato/B8.JPG"
+  ],
+  "leaf mold": [
+    "disease_images/crop_images/tomato/M1.JPG",
+    "disease_images/crop_images/tomato/M2.JPG",
+    "disease_images/crop_images/tomato/M3.JPG",
+    "disease_images/crop_images/tomato/M4.JPG",
+    "disease_images/crop_images/tomato/M5.JPG",
+    "disease_images/crop_images/tomato/M8.JPG"
+  ],
+  "mosaic virus": [
+    "disease_images/crop_images/tomato/R1.JPG",
+    "disease_images/crop_images/tomato/R2.JPG",
+    "disease_images/crop_images/tomato/R3.JPG",
+    "disease_images/crop_images/tomato/R4.JPG",
+    "disease_images/crop_images/tomato/R5.JPG",
+    "disease_images/crop_images/tomato/R8.JPG"
+  ],
+  "septoria leaf spot": [
+    "disease_images/crop_images/tomato/S1.JPG",
+    "disease_images/crop_images/tomato/S2.JPG",
+    "disease_images/crop_images/tomato/S3.JPG",
+    "disease_images/crop_images/tomato/S4.JPG",
+    "disease_images/crop_images/tomato/S5.JPG",
+    "disease_images/crop_images/tomato/S8.JPG"
+  ],
+  "spider smites": [
+    "disease_images/crop_images/tomato/D1.JPG",
+    "disease_images/crop_images/tomato/D2.JPG",
+    "disease_images/crop_images/tomato/D3.JPG",
+    "disease_images/crop_images/tomato/D4.JPG",
+    "disease_images/crop_images/tomato/D5.JPG",
+    "disease_images/crop_images/tomato/D8.JPG"
+  ],
+  "target spots": [
+    "disease_images/crop_images/tomato/T1.JPG",
+    "disease_images/crop_images/tomato/T2.JPG",
+    "disease_images/crop_images/tomato/T3.JPG",
+    "disease_images/crop_images/tomato/T4.JPG",
+    "disease_images/crop_images/tomato/T5.JPG",
+    "disease_images/crop_images/tomato/T8.JPG"
+  ],
+  "yellow leaf curl virus": [
+    "disease_images/crop_images/tomato/Y1.JPG",
+    "disease_images/crop_images/tomato/Y2.JPG",
+    "disease_images/crop_images/tomato/Y3.JPG",
+    "disease_images/crop_images/tomato/Y4.JPG",
+    "disease_images/crop_images/tomato/Y5.JPG",
+    "disease_images/crop_images/tomato/Y8.JPG"
   ]
 }

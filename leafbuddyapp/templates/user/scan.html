@@ -14,9 +14,24 @@
   <body class="font-sans">
     {% include 'partials/navbar.html' %}
 
+    {% if guest_limit_reached %}
+    <div class="mb-2 p-4 rounded-lg bg-red-100 text-red-800 font-semibold text-center">
+      You have reached the maximum of <b>5 free scans</b> for today.<br />
+      <a href="{% url 'login' %}" class="underline text-red-900">
+        Log in to continue using this feature.
+      </a>
+    </div>
+    {% else %}
+      {% if not request.session.user_id %}
+      <div class="mb-2 text-sm text-gray-600 text-center">
+        Guest scans remaining today: <b>{{ remaining_scans }}</b>
+      </div>
+      {% endif %}
+    {% endif %}
+
     <section class="min-h-screen py-24 px-6">
       <div class="max-w-4xl mx-auto text-center">
-        <h1 class="text-5xl font-extrabold text-green-400 mb-6">Leaf Scan</h1>
+        <h1 class="text-5xl font-extrabold text-green-400 mb-6">Scan Leaf Disease</h1>
         <p class="text-md font-medium text-gray-700 mb-12">
           Upload or capture a leaf image and let LeafBuddy's AI identify plant
           diseases instantly.
@@ -36,11 +51,12 @@
               name="crop_type"
               id="crop_type"
               required
-              class="w-full p-3 border border-green-400 rounded-lg bg-green-50 focus:ring-2 focus:ring-green-400"
+              {% if guest_limit_reached %}disabled{% endif %}
+              class="w-full p-3 border border-green-400 rounded-lg bg-green-50 focus:outline-none focus:ring-2 focus:ring-green-400 {% if guest_limit_reached %}opacity-50 cursor-not-allowed{% endif %}"
             >
               <option value="">Choose Crop Type</option>
               {% for crop in crops %}
-              <option value="{{ crop.id }}">{{ crop.name|capfirst }}</option>
+              <option value="{{ crop.name }}">{{ crop.name|capfirst }}</option>
               {% endfor %}
             </select>
           </div>
@@ -51,7 +67,8 @@
               <button
                 type="button"
                 onclick="openCamera()"
-                class="flex items-center space-x-2 bg-green-500 hover:bg-green-600 text-white font-medium px-4 py-2 rounded-lg transition"
+                {% if guest_limit_reached %}disabled{% endif %}
+                class="flex items-center space-x-2 bg-green-500 hover:bg-green-600 text-white font-medium px-4 py-2 rounded-lg transition {% if guest_limit_reached %}opacity-50 cursor-not-allowed{% endif %}"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -80,7 +97,8 @@
               <button
                 type="button"
                 onclick="document.getElementById('leaf_image').click()"
-                class="flex items-center space-x-2 bg-green-300 hover:bg-green-400 text-green-900 font-medium px-4 py-2 rounded-lg transition"
+                {% if guest_limit_reached %}disabled{% endif %}
+                class="flex items-center space-x-2 bg-green-300 hover:bg-green-400 text-green-900 font-medium px-4 py-2 rounded-lg transition {% if guest_limit_reached %}opacity-50 cursor-not-allowed{% endif %}"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -103,12 +121,9 @@
             <div
               class="relative w-full h-[22rem] flex justify-center mt-8 border-2 border-dashed border-green-300 rounded-xl p-6 bg-green-50"
             >
-              <!-- Centered Text -->
               <h2 class="absolute top-4 text-lg font-bold text-gray-700">
                 Preview
               </h2>
-
-              <!-- Centered Image -->
               <img
                 id="preview"
                 src="{% static 'images/image_preview.png' %}"
@@ -122,6 +137,7 @@
               id="leaf_image"
               name="leaf_image"
               accept="image/*"
+              {% if guest_limit_reached %}disabled{% endif %}
               class="hidden"
               onchange="handleFile(this.files[0])"
             />
@@ -131,7 +147,8 @@
           <div>
             <button
               type="submit"
-              class="w-full bg-green-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-green-700 transition duration-300 ease-in-out"
+              {% if guest_limit_reached %}disabled{% endif %}
+              class="w-full bg-green-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-green-700 transition duration-300 ease-in-out {% if guest_limit_reached %}opacity-50 cursor-not-allowed{% endif %}"
             >
               Scan Now
             </button>
@@ -139,7 +156,7 @@
         </form>
       </div>
     </section>
-    {% include 'partials/footer.html' %}
+
     <!-- CAMERA MODAL -->
     <div
       id="cameraModal"
@@ -184,7 +201,6 @@
               ></path>
             </svg>
 
-            <!-- Text -->
             <span id="predictionText">Loading...</span>
           </div>
         </div>
@@ -205,6 +221,7 @@
         </div>
       </div>
     </div>
+
     <!-- IMAGE UPLOAD/CAPTURE MODAL -->
     <div
       id="imageModal"
@@ -214,8 +231,7 @@
       <div
         class="bg-white p-4 rounded-xl text-center w-96 relative"
         onclick="event.stopPropagation()"
-      >
-        <!-- Close Button -->
+      >       
         <button
           onclick="closeModal()"
           class="absolute top-1 right-1 text-black p-1 mb-4 rounded-full"
@@ -245,6 +261,14 @@
         </div>
       </div>
     </div>
+
+    <div id="loadingSpinner" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex flex-col items-center justify-center hidden">
+      <div class="w-16 h-16 border-4 border-t-4 border-green-500 border-t-transparent rounded-full animate-spin"></div>
+      <div class="mt-4 text-white text-lg font-semibold">Processing, please wait...</div>
+    </div>
+
+    {% include 'partials/footer.html' %}
+
     <script>
       let stream;
       let video = document.getElementById("cameraPreview");
@@ -334,14 +358,13 @@
             baseOverlayClass + " bg-white bg-opacity-80 text-green-800";
 
           document.getElementById("cameraModal").classList.remove("hidden");
-          document.getElementById("imageModal").classList.add("hidden"); // Hide the imageModal when camera is opened
+          document.getElementById("imageModal").classList.add("hidden");
           startRealtimePrediction();
         } catch (err) {
           alert("Camera access denied or not available.");
         }
       }
 
-      // Close the camera modal
       function closeCamera() {
         if (stream) stream.getTracks().forEach((track) => track.stop());
         stopRealtimePrediction();
@@ -362,7 +385,7 @@
           document.getElementById("leaf_image").files = dt.files;
           handleFile(file);
           closeCamera();
-          document.getElementById("imageModal").classList.add("hidden"); // Close the imageModal after file is captured
+          document.getElementById("imageModal").classList.add("hidden");
         }, "image/jpeg");
       }
 
@@ -376,21 +399,18 @@
         reader.readAsDataURL(file);
       }
 
-      // Function to close the modal
       function closeModal(event) {
         if (event) {
-          // Close the modal if clicked outside the modal content
           event.preventDefault();
         }
         document.getElementById("imageModal").classList.add("hidden");
       }
 
-      // Close the modal when clicking outside the modal content
       document
         .getElementById("imageModal")
         .addEventListener("click", function (event) {
           if (event.target === this) {
-            closeModal(event); // Close when clicking outside modal
+            closeModal(event);
           }
         });
 
@@ -450,6 +470,28 @@
           spinner.classList.add("text-yellow-800");
         if (textColor.includes("red")) spinner.classList.add("text-red-800");
       }
+    </script>
+
+    <!-- for spinner -->
+    <script>
+      const form = document.querySelector("form");
+      const spinner2 = document.getElementById("loadingSpinner");
+
+      form.addEventListener("submit", function (event) {
+        const leafImage = document.getElementById("leaf_image").files[0];
+        if (!leafImage) {
+          event.preventDefault();
+          document.getElementById("imageModal").classList.remove("hidden");
+          return;
+        }
+
+        // Show spinner
+        spinner2.classList.remove("hidden");
+      });
+
+      window.addEventListener("load", () => {
+        spinner2.classList.add("hidden");
+      });
     </script>
   </body>
 </html>

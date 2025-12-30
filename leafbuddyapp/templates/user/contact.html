@@ -26,9 +26,28 @@
   </head>
   <body class="font-sans">
     {% include 'partials/navbar.html' %}
+    
+    <div
+      id="loading-overlay"
+      class="fixed inset-0 bg-black/40 flex items-center justify-center z-[999] hidden"
+    >
+      <div class="w-14 h-14 border-4 border-green-400 border-t-transparent rounded-full animate-spin"></div>
+    </div>
 
     <!-- Contact Section -->
     <section class="py-24 px-6">
+      {% if messages %}
+        <div id="toast-container" class="fixed top-[4.2rem] right-[36px] z-50 space-y-4">
+          {% for message in messages %}
+            <div
+                class="toast bg-green-300 text-green-800 px-6 py-2 rounded-lg shadow-lg flex items-start gap-3 animate-slide-in"
+              >
+                <span>{{ message }}<span>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+
       <div class="max-w-4xl mx-auto text-center">
         <h2 class="text-5xl font-extrabold text-green-400 mb-6">
           Get in Touch
@@ -39,6 +58,7 @@
 
         <form
           action="#"
+          id="contact-form"
           method="POST"
           class="grid grid-cols-1 gap-6 text-left bg-white p-8 rounded-2xl shadow-md border border-gray-200"
         >
@@ -103,7 +123,19 @@
       ></iframe>
     </div>
 
-    <!-- Include footer if available -->
     {% include 'partials/footer.html' %}
+
+    <script>
+      document.getElementById("contact-form").addEventListener("submit", () => {
+        document.getElementById("loading-overlay").classList.remove("hidden");
+      });
+
+      setTimeout(() => {
+        document.querySelectorAll(".toast").forEach((toast) => {
+          toast.classList.add("opacity-0", "transition-opacity", "duration-500");
+          setTimeout(() => toast.remove(), 500);
+        });
+      }, 4000);
+    </script>
   </body>
 </html>

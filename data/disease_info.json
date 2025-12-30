@@ -76,7 +76,7 @@
       "treatment": "Fungicides are the primary treatment for Bean Rust and should be applied during the early stages of infection to be most effective. Fungicides containing active ingredients such as chlorothalonil, mancozeb, or triazole-based products are commonly used. Regular applications of these fungicides, especially during periods of high humidity and rainfall, can significantly reduce the spread of the disease. It's also crucial to remove and destroy heavily infected plants to reduce the amount of fungal spores in the environment. Crop sanitation is an essential part of disease management, as leftover plant material can harbor fungal spores and serve as a source of reinfection in future planting seasons.",
       "prevention": "To prevent Bean Rust, it's essential to plant resistant varieties of beans when available, as these varieties are less susceptible to fungal infection. Proper plant spacing is also important to improve airflow and reduce the humidity around the plants, making it less favorable for the fungus to thrive. Crop rotation is another vital preventive measure, as it helps to break the disease cycle by reducing the presence of the fungus in the soil. Additionally, practicing good field hygiene—such as removing fallen leaves and debris from previous crops—can limit the build-up of fungal spores. Regular monitoring for early signs of rust infection and applying fungicides as a preventive measure during the rainy season can also help to reduce the risk of an outbreak."
     },
-    "healthy": {
+    "bean healthy leaf": {
       "image": "images/crops/beans/healthy.jpg",
       "description": "A healthy bean plant shows vigorous growth with no signs of disease, discoloration, or pest damage.",
       "symptoms": "Bright green, full-sized leaves; upright stems; and regular flowering and pod development.",
@@ -94,7 +94,7 @@
   "chili": {
     "thumbnail_image": "images/crops/chili.png",
     "scientific_name": "Capsicum annuum",
-    "healthy": {
+    "chilli healthy leaf": {
       "image": "images/crops/chili/healthy.jpg",
       "description": "A healthy chili plant exhibits vibrant green foliage, strong stems, and steady flower and fruit development without any signs of pests or disease.",
       "symptoms": "No visible symptoms; leaves are firm, green, and evenly shaped with no spots or curling.",
@@ -161,7 +161,7 @@
       "treatment": "Fungicide application is recommended to manage Gray Leaf Spot, particularly if the disease pressure is high. Fungicides containing active ingredients such as strobilurins or triazoles are commonly used to control the disease. Timing fungicide applications is crucial, and they should be applied at key growth stages, typically from the VT (tasseling) to R1 (silking) stages of corn growth, when the plant is most susceptible to infection. Applying fungicides before the disease becomes severe can help to protect healthy tissue and prevent further spread of the pathogen.",
       "prevention": "Preventing Gray Leaf Spot involves planting resistant corn hybrids when possible, as these varieties are less susceptible to fungal infection. Crop rotation is an essential strategy for reducing the buildup of the pathogen in the soil and minimizing the risk of reinfection in subsequent seasons. Managing crop residue by tilling or destroying leftover plant material can help reduce the amount of fungal spores available to infect future crops. In addition, ensuring proper field spacing, reducing plant stress, and maintaining good air circulation can help to reduce the humidity around plants, making it less favorable for the fungus to spread."
     },
-    "healthy": {
+    "corn healthy leaf": {
       "image": "images/crops/corn/Corn_Healthy.jpg",
       "description": "Corn plants showing no visible signs of disease or stress.",
       "symptoms": "Green, upright leaves; strong stalks; and well-formed ears.",
@@ -306,7 +306,7 @@
       "treatment": "Fungicides, such as \"Chlorothalonil\", \"Mancozeb\", or \"Tebuconazole\", are effective in treating early blight. These should be applied at the first signs of infection and continued regularly throughout the growing season, especially during wet weather. Remove infected leaves promptly to reduce the spread of the disease and improve airflow. Prune plants to maintain good spacing and avoid crowding, which creates humid conditions that favor fungal growth. In some cases, a systemic fungicide may be required to penetrate the plant tissues and prevent further spread.",
       "prevention": "Preventing early blight requires a combination of good cultural practices and the use of resistant varieties. Crop rotation is critical, as it prevents the fungus from building up in the soil year after year. Plant tomatoes with adequate spacing to promote airflow and reduce humidity around the plants. Avoid overhead irrigation, as water droplets can splash fungal spores onto the plants. Ensure proper soil nutrition, particularly potassium, as it helps improve the plant’s resistance to diseases. At the end of the season, remove and destroy infected plant material and debris to reduce the fungal inoculum for the next planting."
     },
-    "healthy": {
+    "healthy tomato leaf": {
       "image": "images/crops/tomato/healthy.jpg",
       "description": "A healthy tomato plant has lush green foliage, strong stems, and no signs of pest or disease damage.",
       "symptoms": "No visible symptoms; consistent leaf color and shape, regular flowering and fruiting.",

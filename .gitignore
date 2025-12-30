@@ -21,3 +21,4 @@ venv/
 
 .env
 db.sqlite3
+models/
