@@ -491,7 +491,7 @@ def signup(request):
 def send_confirmation_email(user, request):
     token = default_token_generator.make_token(user)
     uid = urlsafe_base64_encode(force_bytes(user.pk))
-    domain = "127.0.0.1:8000" if settings.DEBUG else get_current_site(request).domain
+    domain = "https://leafbuddy.onrender.com" if settings.DEBUG else get_current_site(request).domain
     activation_url = f"http://{domain}/auth/confirm-email/{uid}/{token}/"
 
     subject = "Confirm Your Email Address"
@@ -559,7 +559,7 @@ def resend_confirmation_email(request):
     token = default_token_generator.make_token(SupabaseUser(user))
     uid = urlsafe_base64_encode(force_bytes(user["id"]))
 
-    domain = "127.0.0.1:8000" if settings.DEBUG else get_current_site(request).domain
+    domain = "https://leafbuddy.onrender.com" if settings.DEBUG else get_current_site(request).domain
     confirm_url = f"http://{domain}{reverse('confirm_email', args=[uid, token])}"
 
     # Save metadata to Supabase
@@ -821,7 +821,7 @@ def forgot_password(request):
             })
         
         token = generate_password_reset_token(email)
-        domain = "127.0.0.1:8000" if settings.DEBUG else get_current_site(request).domain
+        domain = "https://leafbuddy.onrender.com" if settings.DEBUG else get_current_site(request).domain
         reset_link = f"http://{domain}/auth/forgot-password/?token={token}"
 
         subject = "LeafBuddy Password Reset"
